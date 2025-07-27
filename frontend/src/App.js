@@ -20,6 +20,7 @@ import AdminBrands from './pages/admin/AdminBrands';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminContacts from './pages/admin/AdminContacts';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminSlides from './pages/admin/AdminSlides';
 import ProtectedRoute from './components/ProtectedRoute';
 import Categories from './pages/Categories';
 
@@ -92,6 +93,11 @@ function AppContent() {
           <Route path="/admin/settings" element={
             <ProtectedRoute adminOnly>
               <AdminSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/slides" element={
+            <ProtectedRoute adminOnly>
+              <AdminSlides />
             </ProtectedRoute>
           } />
         </Routes>

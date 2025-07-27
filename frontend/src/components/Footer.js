@@ -7,9 +7,9 @@ const Footer = () => {
       <div className="container">
         <div className="row g-4">
           <div className="col-lg-4 col-md-6">
-            <h5 className="fw-bold mb-3">
-              <i className="bi bi-shop me-2"></i>
-              🏸 Badminton Shop
+            <h5 className="fw-bold mb-2">
+            <img src="/images/logo.png" style={{ height: "40px", marginRight: "5px" }} />
+              BAOBAO Badminton
             </h5>
             <p className="mb-3">
               Cửa hàng thiết bị cầu lông hàng đầu Việt Nam với hơn 10 năm kinh nghiệm 
@@ -34,10 +34,11 @@ const Footer = () => {
           <div className="col-lg-2 col-md-6">
             <h6 className="fw-bold">Sản phẩm</h6>
             <ul className="list-unstyled">
-              <li className="mb-2"><Link to="/products?category=1" className="text-decoration-none">Vợt cầu lông</Link></li>
-              <li className="mb-2"><Link to="/products?category=2" className="text-decoration-none">Giày cầu lông</Link></li>
-              <li className="mb-2"><Link to="/products?category=3" className="text-decoration-none">Áo quần</Link></li>
-              <li className="mb-2"><Link to="/products?category=4" className="text-decoration-none">Phụ kiện</Link></li>
+              <li className="mb-2"><Link to="/products?category=1" className="text-decoration-none">Túi cầu lông</Link></li>
+              <li className="mb-2"><Link to="/products?category=2" className="text-decoration-none">Vợt cầu lông</Link></li>
+              <li className="mb-2"><Link to="/products?category=3" className="text-decoration-none">Giày cầu lông</Link></li>
+              <li className="mb-2"><Link to="/products?category=4" className="text-decoration-none">Áo quần</Link></li>
+              <li className="mb-2"><Link to="/products?category=5" className="text-decoration-none">Phụ kiện</Link></li>
             </ul>
           </div>
           
@@ -54,16 +55,15 @@ const Footer = () => {
           
           <div className="col-lg-3 col-md-6">
             <h6 className="fw-bold">
-              <i className="bi bi-geo-alt me-2"></i>
               Thông tin liên hệ
             </h6>
             <div className="mb-2">
               <i className="bi bi-telephone me-2"></i>
-              <strong>Hotline:</strong> 0123-456-789
+              <strong>Hotline:</strong> 0347-176-526
             </div>
             <div className="mb-2">
               <i className="bi bi-envelope me-2"></i>
-              <strong>Email:</strong> info@badmintonshop.com
+              <strong>Email:</strong> baongo2722004@gmail.com
             </div>
             <div className="mb-2">
               <i className="bi bi-clock me-2"></i>
@@ -71,7 +71,7 @@ const Footer = () => {
             </div>
             <div>
               <i className="bi bi-map me-2"></i>
-              123 Nguyễn Văn Linh, Quận 7, TP.HCM
+              37 Phước Tường 16, Phường An khê, Thành Phố Đà Nẵng
             </div>
           </div>
         </div>
@@ -79,18 +79,12 @@ const Footer = () => {
         <hr className="my-4" style={{borderColor: '#34495e'}} />
         
         <div className="row align-items-center">
-          <div className="col-md-6">
-            <p className="mb-0 text-center text-md-start">
-              &copy; 2024 Badminton Shop. All rights reserved.
+          <div className="col-md-12">
+            <p className="mb-0 text-center text-md-center">
+              &copy; 2025 BAOBAO Badminton. All rights reserved.
             </p>
           </div>
-          <div className="col-md-6">
-            <div className="text-center text-md-end">
-              <small className="text-muted">
-                Thiết kế bởi <span className="text-primary">BaoBao Team</span> 💙
-              </small>
-            </div>
-          </div>
+          
         </div>
       </div>
     </footer>

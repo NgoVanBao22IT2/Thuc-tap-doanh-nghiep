@@ -20,6 +20,7 @@ app.use('/api/brands', require('./routes/brands'));
 app.use('/api/coupons', require('./routes/coupons'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/settings', require('./routes/settings'));
+app.use('/api/slides', require('./routes/slides'));
 
 // Health check
 app.get('/api/health', (req, res) => {

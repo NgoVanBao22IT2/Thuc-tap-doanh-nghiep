@@ -13,11 +13,11 @@ router.get('/', (req, res) => {
 
 // Create category (Admin only)
 router.post('/', verifyToken, verifyAdmin, (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, image } = req.body;
   
   db.query(
-    'INSERT INTO categories (name, description) VALUES (?, ?)',
-    [name, description],
+    'INSERT INTO categories (name, description, image) VALUES (?, ?, ?)',
+    [name, description, image],
     (err, result) => {
       if (err) return res.status(500).json({ message: 'Database error' });
       res.status(201).json({ message: 'Category created successfully', id: result.insertId });
@@ -27,11 +27,11 @@ router.post('/', verifyToken, verifyAdmin, (req, res) => {
 
 // Update category (Admin only)
 router.put('/:id', verifyToken, verifyAdmin, (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, image } = req.body;
   
   db.query(
-    'UPDATE categories SET name = ?, description = ? WHERE id = ?',
-    [name, description, req.params.id],
+    'UPDATE categories SET name = ?, description = ?, image = ? WHERE id = ?',
+    [name, description, image, req.params.id],
     (err, result) => {
       if (err) return res.status(500).json({ message: 'Database error' });
       if (result.affectedRows === 0) return res.status(404).json({ message: 'Category not found' });

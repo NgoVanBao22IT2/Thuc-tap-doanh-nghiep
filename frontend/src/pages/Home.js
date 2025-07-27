@@ -10,25 +10,30 @@ const CATEGORY_IDS = {
   'phu-kien': 5
 };
 
-const SLIDES = [
-  { image: '/images/slides/slide1.jpg', title: 'Vợt Yonex 2024', desc: 'Bộ sưu tập vợt Yonex mới nhất', link: '/products?category=1' },
-  { image: '/images/slides/slide2.jpg', title: 'Giày cầu lông sale 30%', desc: 'Khuyến mãi lớn cho giày cầu lông', link: '/products?category=2' },
-  { image: '/images/slides/slide3.jpg', title: 'Phụ kiện cao cấp', desc: 'Túi vợt, cước, băng quấn chính hãng', link: '/products?category=4' }
-];
+// Slides sẽ được lấy từ database
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
   const [productsByCategory, setProductsByCategory] = useState({});
   const [bestSellers, setBestSellers] = useState([]);
+  const [slides, setSlides] = useState([]);
   const [slideIdx, setSlideIdx] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [categoryStartIdx, setCategoryStartIdx] = useState(0);
+  const categoriesPerView = 4;
 
   useEffect(() => {
     fetchCategories();
     fetchProducts();
-    const timer = setInterval(() => setSlideIdx(idx => (idx + 1) % SLIDES.length), 4000);
-    return () => clearInterval(timer);
+    fetchSlides();
   }, []);
+
+  useEffect(() => {
+    if (slides.length > 0) {
+      const timer = setInterval(() => setSlideIdx(idx => (idx + 1) % slides.length), 4000);
+      return () => clearInterval(timer);
+    }
+  }, [slides]);
 
   const fetchCategories = async () => {
     try {
@@ -56,6 +61,15 @@ const Home = () => {
     }
   };
 
+  const fetchSlides = async () => {
+    try {
+      const res = await axios.get('/api/slides');
+      setSlides(res.data);
+    } catch {
+      setSlides([]);
+    }
+  };
+
   const renderProductCard = (product) => (
     <div className="product-card h-100">
       <div className="position-relative">
@@ -63,7 +77,7 @@ const Home = () => {
           src={product.image_url || 'https://via.placeholder.com/300x200?text=No+Image'}
           alt={product.name}
           className="card-img-top"
-          style={{ height: '160px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }}
+          style={{ height: '350px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }}
         />
         {product.stock_quantity === 0 && (
           <span className="badge badge-het-hang position-absolute top-0 start-0 m-2">Hết hàng</span>
@@ -154,54 +168,75 @@ const Home = () => {
   return (
     <div>
       {/* Slide Banner */}
-      <div className="home-banner mb-5 position-relative">
-        <img src={SLIDES[slideIdx].image} alt="Banner" className="w-100" style={{maxHeight:'320px',objectFit:'cover'}} />
-        <div className="home-banner-text">
-          <h1 className="fw-bold" style={{fontSize:'2.5rem'}}>{SLIDES[slideIdx].title}</h1>
-          <div className="fs-4">{SLIDES[slideIdx].desc}</div>
-          <div className="mt-2">
-            <Link to={SLIDES[slideIdx].link} className="btn btn-primary btn-lg mt-2">Xem ngay</Link>
+      {slides.length > 0 && (
+        <div className="home-banner mb-5 position-relative">
+          <img src={slides[slideIdx].image} alt="Banner" className="w-100" style={{maxHeight:'320px',objectFit:'cover'}} />
+          <div className="home-banner-text">
+            <h1 className="fw-bold" style={{fontSize:'2.5rem'}}>{slides[slideIdx].title}</h1>
+            <div className="fs-4">{slides[slideIdx].description}</div>
+            <div className="mt-2">
+              <Link to={slides[slideIdx].link || '#'} className="btn btn-primary btn-lg mt-2">
+                {slides[slideIdx].button_text || 'Xem ngay'}
+              </Link>
+            </div>
+          </div>
+          <div className="home-banner-controls position-absolute bottom-0 end-0 p-3">
+            {slides.map((_, idx) => (
+              <button
+                key={idx}
+                className={`banner-dot${slideIdx === idx ? ' active' : ''}`}
+                onClick={() => setSlideIdx(idx)}
+                style={{margin: '0 4px'}}
+              ></button>
+            ))}
           </div>
         </div>
-        <div className="home-banner-controls position-absolute bottom-0 end-0 p-3">
-          {SLIDES.map((_, idx) => (
-            <button
-              key={idx}
-              className={`banner-dot${slideIdx === idx ? ' active' : ''}`}
-              onClick={() => setSlideIdx(idx)}
-              style={{margin: '0 4px'}}
-            ></button>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Danh mục sản phẩm */}
       <div className="container mb-5">
         <h2 className="fw-bold text-primary mb-4">Danh mục sản phẩm</h2>
-        <div className="row g-4">
-          {categories.map(cat => (
-            <div key={cat.id} className="col-lg-3 col-md-4 col-sm-6">
-              <div className="card h-100 shadow-sm card-category">
-                <div className="card-body d-flex flex-column align-items-center justify-content-center">
-                  <img
-                    src={cat.image || 'https://via.placeholder.com/120x120?text=Category'}
-                    alt={cat.name}
-                    style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '16px', background: '#f8f9fa' }}
-                  />
-                  <h5 className="card-title text-dark fw-bold mb-2 mt-3">{cat.name}</h5>
-                  <p className="card-text text-muted text-center mb-3" style={{minHeight: '48px'}}>
-                    {cat.description}
-                  </p>
+        <div className="position-relative">
+          <button
+            className="btn btn-light position-absolute top-50 start-0 translate-middle-y"
+            style={{ zIndex: 2, left: -30, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            onClick={() => setCategoryStartIdx(idx => Math.max(0, idx - categoriesPerView))}
+            disabled={categoryStartIdx === 0}
+          >
+            &lt;
+          </button>
+          <div className="d-flex flex-row overflow-hidden" style={{ gap: 24 }}>
+            {categories.slice(categoryStartIdx, categoryStartIdx + categoriesPerView).map(cat => (
+              <div key={cat.id} style={{ minWidth: 240, maxWidth: 260 }}>
+                <div className="card card-category h-100 d-flex flex-column align-items-center justify-content-center p-3" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)', borderRadius: 16, border: 'none', background: '#fff', minHeight: 320 }}>
+                  <div className="d-flex align-items-center justify-content-center mb-3" style={{ width: 120, height: 120, background: '#f8f9fa', borderRadius: 16, overflow: 'hidden' }}>
+                    <img
+                      src={cat.image || 'https://via.placeholder.com/120x120?text=Category'}
+                      alt={cat.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f8f9fa' }}
+                    />
+                  </div>
+                  <h5 className="card-title text-dark fw-bold mb-2 mt-1 text-center">{cat.name}</h5>
+                  <p className="card-text text-muted text-center mb-3" style={{ minHeight: 48 }}>{cat.description}</p>
                   <Link
                     to={`/products?category=${cat.id}`}
-                    className="btn btn-primary w-100"
+                    className="btn btn-outline-primary w-100"
+                    style={{ borderRadius: 8, fontWeight: 600, fontSize: '1rem', padding: '10px 0' }}
                   >
                     Xem sản phẩm
                   </Link>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button
+            className="btn btn-light position-absolute top-50 end-0 translate-middle-y"
+            style={{ zIndex: 2, right: -30, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            onClick={() => setCategoryStartIdx(idx => Math.min(categories.length - categoriesPerView, idx + categoriesPerView))}
+            disabled={categoryStartIdx + categoriesPerView >= categories.length}
+          >
+            &gt;
+          </button>
         </div>
       </div>
 

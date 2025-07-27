@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import axios from 'axios';
+import ImageUpload from '../../components/ImageUpload';
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -10,6 +11,7 @@ const AdminCategories = () => {
     name: '',
     description: '',
     slug: '',
+    image: '',
     status: 'active'
   });
   const [loading, setLoading] = useState(true);
@@ -62,6 +64,7 @@ const AdminCategories = () => {
       name: category.name,
       description: category.description || '',
       slug: category.slug || '',
+      image: category.image || '',
       status: category.status || 'active'
     });
     setShowModal(true);
@@ -85,6 +88,7 @@ const AdminCategories = () => {
       name: '',
       description: '',
       slug: '',
+      image: '',
       status: 'active'
     });
   };
@@ -93,6 +97,10 @@ const AdminCategories = () => {
     setShowModal(false);
     setEditingCategory(null);
     resetForm();
+  };
+
+  const handleImageUpload = (imageUrl) => {
+    setFormData({ ...formData, image: imageUrl });
   };
 
   return (
@@ -121,6 +129,7 @@ const AdminCategories = () => {
                 <th>ID</th>
                 <th>Tên danh mục</th>
                 <th>Mô tả</th>
+                <th>ảnh</th>
                 <th>Ngày tạo</th>
                 <th>Thao tác</th>
               </tr>
@@ -131,6 +140,12 @@ const AdminCategories = () => {
                   <td>{category.id}</td>
                   <td>{category.name}</td>
                   <td>{category.description}</td>
+                  <td><img 
+                      src={category.image || 'https://via.placeholder.com/50x50'} 
+                      alt={category.name}
+                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                      className="rounded"
+                    /></td>
                   <td>
                     {new Date(category.created_at).toLocaleDateString('vi-VN')}
                   </td>
@@ -192,6 +207,12 @@ const AdminCategories = () => {
                       onChange={(e) => setFormData({...formData, description: e.target.value})}
                     />
                   </div>
+
+                  <ImageUpload
+                    onImageUpload={handleImageUpload}
+                    currentImage={formData.image}
+                    label="Ảnh danh mục"
+                  />
 
                   <div className="mb-3">
                     <label className="form-label">Slug:</label>

@@ -48,6 +48,16 @@
 - ✅ Loading state khi upload
 - ✅ Validation file type
 
+### 7. **🖼️ AdminSlides - Quản lý Slide Banner**
+
+- ✅ Tạo API routes cho slides (CRUD đầy đủ)
+- ✅ Trang AdminSlides với giao diện card view
+- ✅ Modal form thêm/sửa slide
+- ✅ Upload hình ảnh với ImageUpload component
+- ✅ Sắp xếp thứ tự slides
+- ✅ Cập nhật Home.js để lấy slides từ database
+- ✅ Dữ liệu mẫu slides
+
 ## 🔧 Chi tiết kỹ thuật
 
 ### Backend API Routes được bổ sung:
@@ -113,6 +123,7 @@ router.put("/:id", verifyToken, verifyAdmin, (req, res) => {
 - **Users**: ✅ Create, Read, Update, Delete
 - **Brands**: ✅ Create, Read, Update, Delete
 - **Coupons**: ✅ Create, Read, Update, Delete
+- **Slides**: ✅ Create, Read, Update, Delete
 - **Orders**: ✅ Read, Update (workflow)
 - **Contacts**: ✅ Read, Update (status + reply)
 - **Settings**: ✅ Read, Update
