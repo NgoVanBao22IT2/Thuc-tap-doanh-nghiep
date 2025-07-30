@@ -17,6 +17,11 @@ const AdminCategories = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Đảm bảo axios có Authorization header khi vào trang admin
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
     fetchCategories();
   }, []);
 
@@ -127,44 +132,53 @@ const AdminCategories = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Tên danh mục</th>
+                <th>Tên DM</th>
                 <th>Mô tả</th>
-                <th>ảnh</th>
+                <th>Ảnh</th>
+                <th>DM cha</th>
                 <th>Ngày tạo</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {categories.map(category => (
-                <tr key={category.id}>
-                  <td>{category.id}</td>
-                  <td>{category.name}</td>
-                  <td>{category.description}</td>
-                  <td><img 
-                      src={category.image || 'https://via.placeholder.com/50x50'} 
-                      alt={category.name}
-                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                      className="rounded"
-                    /></td>
-                  <td>
-                    {new Date(category.created_at).toLocaleDateString('vi-VN')}
-                  </td>
-                  <td>
-                    <button 
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={() => handleEdit(category)}
-                    >
-                      Sửa
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDelete(category.id)}
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {[...categories]
+                .sort((a, b) => a.id - b.id)
+                .map(category => {
+                  const parent = categories.find(c => c.id === category.parent_id);
+                  return (
+                    <tr key={category.id}>
+                      <td>{category.id}</td>
+                      <td>{category.name}</td>
+                      <td>{category.description}</td>
+                      <td>
+                        <img 
+                          src={category.image || 'https://via.placeholder.com/50x50'} 
+                          alt={category.name}
+                          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                          className="rounded"
+                        />
+                      </td>
+                      <td>{parent ? parent.name : ''}</td>
+                      <td>
+                        {new Date(category.created_at).toLocaleDateString('vi-VN')}
+                      </td>
+                      <td>
+                        <button 
+                          className="btn btn-sm btn-outline-primary me-2"
+                          onClick={() => handleEdit(category)}
+                        >
+                          Sửa
+                        </button>
+                        <button 
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDelete(category.id)}
+                        >
+                          Xóa
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
@@ -233,6 +247,20 @@ const AdminCategories = () => {
                     >
                       <option value="active">Kích hoạt</option>
                       <option value="inactive">Không kích hoạt</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Danh mục cha:</label>
+                    <select
+                      className="form-select"
+                      value={formData.parent_id || ''}
+                      onChange={(e) => setFormData({...formData, parent_id: e.target.value || null})}
+                    >
+                      <option value="">Không có (danh mục cấp 1)</option>
+                      {categories.filter(c => !c.parent_id).map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
                     </select>
                   </div>
                 </div>

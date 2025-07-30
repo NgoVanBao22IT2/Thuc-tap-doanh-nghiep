@@ -153,13 +153,13 @@ const AdminDashboard = () => {
         <div className="card-body">
           <div className="row">
             <div className="col-md-2 mb-3">
-              <Link to="/admin/products" className="btn btn-admin-primary w-100 py-3">
+              <Link to="/admin/products" className="btn btn-outline-secondary w-100 py-3">
                 <div>📦</div>
                 <div>Sản phẩm</div>
               </Link>
             </div>
             <div className="col-md-2 mb-3">
-              <Link to="/admin/orders" className="btn btn-admin-success w-100 py-3">
+              <Link to="/admin/orders" className="btn btn-outline-success w-100 py-3">
                 <div>🛒</div>
                 <div>Đơn hàng</div>
               </Link>
@@ -177,13 +177,13 @@ const AdminDashboard = () => {
               </Link>
             </div>
             <div className="col-md-2 mb-3">
-              <Link to="/admin/coupons" className="btn btn-outline-warning w-100 py-3">
+              <Link to="/admin/coupons" className="btn btn-outline-danger w-100 py-3">
                 <div>🎫</div>
                 <div>Mã giảm giá</div>
               </Link>
             </div>
             <div className="col-md-2 mb-3">
-              <Link to="/" className="btn btn-outline-secondary w-100 py-3">
+              <Link to="/" className="btn btn-outline-warning w-100 py-3">
                 <div>🏠</div>
                 <div>Xem website</div>
               </Link>

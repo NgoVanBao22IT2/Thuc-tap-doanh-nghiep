@@ -3,11 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CATEGORY_IDS = {
-  'tui-cau-long': 1,
-  'vot-cau-long': 2,
-  'giay-cau-long': 3,
-  'ao-quan': 4,
-  'phu-kien': 5
+  
+  'vot-cau-long': 1,
+  'ao-cau-long': 2,
+  'quan-cau-long': 3,
+  'vay-cau-long': 4,
+  'tui-cau-long': 5,
+  'giay-cau-long': 6,
+  'phu-kien': 7,
+
 };
 
 // Slides sẽ được lấy từ database
@@ -20,7 +24,8 @@ const Home = () => {
   const [slideIdx, setSlideIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [categoryStartIdx, setCategoryStartIdx] = useState(0);
-  const categoriesPerView = 4;
+  const categoriesPerView = 6;
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories();
@@ -70,66 +75,205 @@ const Home = () => {
     }
   };
 
+  // Sử dụng card sản phẩm giống Products.js, click vào card sẽ điều hướng tới chi tiết
   const renderProductCard = (product) => (
-    <div className="product-card h-100">
-      <div className="position-relative">
+    <div
+      className="product-card h-100 fade-in-up"
+      style={{
+        animationDelay: '0s',
+        borderRadius: '10px',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+        overflow: 'hidden',
+        backgroundColor: '#fff',
+        transition: 'transform 0.2s ease',
+        cursor: 'pointer'
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+      onClick={() => navigate(`/products/${product.id}`)}
+    >
+      <div className="position-relative overflow-hidden mb-2">
         <img
-          src={product.image_url || 'https://via.placeholder.com/300x200?text=No+Image'}
-          alt={product.name}
+          src={product.image_url || 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=No+Image'}
           className="card-img-top"
-          style={{ height: '350px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }}
+          alt={product.name}
+          style={{
+            height: '320px',
+            objectFit: 'cover',
+            width: '100%',
+          }}
         />
         {product.stock_quantity === 0 && (
-          <span className="badge badge-het-hang position-absolute top-0 start-0 m-2">Hết hàng</span>
+          <div className="position-absolute top-0 start-0 m-2">
+            <span className="badge bg-danger" style={{ fontWeight: 500, fontSize: '0.8rem' }}>Hết hàng</span>
+          </div>
         )}
         {product.sale_price && (
-          <span className="badge bg-warning text-dark position-absolute top-0 end-0 m-2">
-            SALE {Math.round(((product.price - product.sale_price) / product.price) * 100)}%
-          </span>
+          <div className="position-absolute top-0 end-0 m-2">
+            <span className="badge bg-warning text-dark">
+              SALE {Math.round(((product.price - product.sale_price) / product.price) * 100)}%
+            </span>
+          </div>
         )}
       </div>
       <div className="card-body d-flex flex-column">
-        <h5 className="card-title text-dark fw-bold">{product.name}</h5>
-        <div className="mb-2 text-muted small">{product.category_name}</div>
-        <div className="mb-3">
-          <span className="fw-bold text-danger fs-5">
-            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.sale_price || product.price)}
-          </span>
-          {product.sale_price && (
-            <small className="text-decoration-line-through text-muted ms-2">
-              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
-            </small>
+        <h5 className="card-title text-dark fw-semibold" style={{ fontSize: '1rem', minHeight: '3em', paddingLeft: '10px' }}>
+          {product.name}
+        </h5>
+        <div className="mb-1 text-muted small" style={{paddingLeft: '10px'}}>{product.category_name}</div>
+        <div className="mb-2" style={{paddingLeft: '10px'}}>
+          {product.sale_price ? (
+            <>
+              <span className="fw-bold text-danger fs-5">
+                {new Intl.NumberFormat('vi-VN', {
+                  style: 'currency',
+                  currency: 'VND'
+                }).format(product.sale_price)}
+              </span>
+              <br />
+              <small className="text-decoration-line-through text-muted">
+                {new Intl.NumberFormat('vi-VN', {
+                  style: 'currency',
+                  currency: 'VND'
+                }).format(product.price)}
+              </small>
+            </>
+          ) : (
+            <span className="fw-bold text-danger fs-5">
+              {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              }).format(product.price)}
+            </span>
           )}
         </div>
         <div className="mt-auto">
-          {product.stock_quantity === 0 ? (
-            <Link to={`/products/${product.id}`} className="btn btn-light w-100">
-              <i className="bi bi-eye me-2"></i>Xem chi tiết
-            </Link>
-          ) : (
-            <Link to={`/products/${product.id}`} className="btn btn-dark w-100">
-              <i className="bi bi-cart-plus me-2"></i>Thêm vào giỏ
-            </Link>
-          )}
+          <button
+            className={`btn ${product.stock_quantity === 0 ? 'btn-outline-secondary' : 'btn-dark'} w-100`}
+            style={{ fontWeight: 600, fontSize: '0.95rem', padding: '10px' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/products/${product.id}`);
+            }}
+          >
+            {product.stock_quantity === 0 ? 'Xem chi tiết' : 'Xem sản phẩm'}
+          </button>
         </div>
       </div>
     </div>
   );
 
   const renderCategoryBlock = (catId, title, link) => {
-    const products = productsByCategory[catId] || [];
+    let products = productsByCategory[catId] || [];
+    // Nếu là Phụ kiện, lấy tất cả sản phẩm thuộc các danh mục con và chính nó, không phân nhóm
+    if (title === 'Phụ kiện') {
+      const parentCat = categories.find(cat => cat.id === catId);
+      if (parentCat) {
+        const childCatIds = categories.filter(cat => cat.parent_id === parentCat.id).map(cat => cat.id);
+        products = Object.values(productsByCategory)
+          .flat()
+          .filter(p => childCatIds.includes(p.category_id) || p.category_id === parentCat.id);
+      }
+    }
+    // Đường dẫn đúng cho nút "Xem tất cả"
+    const categoryObj = categories.find(cat => cat.id === catId);
+    const categoryLink = categoryObj ? `/products?category=${categoryObj.id}` : link;
     return (
       <div className="mb-5">
         <div className="d-flex align-items-center mb-3">
-          <h2 className="fw-bold text-primary">{title}</h2>
+          <h2 className="fw-bold text-dark">{title}</h2>
           <div className="ms-auto">
-            <Link to={link} className="btn btn-outline-primary btn-sm">Xem tất cả</Link>
+            <Link to={categoryLink} className="btn btn-outline-dark btn-sm">Xem tất cả</Link>
           </div>
         </div>
         <div className="row g-4">
           {products.slice(0, 4).map(product => (
             <div key={product.id} className="col-lg-3 col-md-4 col-sm-6">
-              {renderProductCard(product)}
+              {/* Nút xem chi tiết sản phẩm luôn đúng */}
+              <div
+                className="product-card h-100 fade-in-up"
+                style={{
+                  animationDelay: '0s',
+                  borderRadius: '10px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  transition: 'transform 0.2s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onClick={() => navigate(`/products/${product.id}`)}
+              >
+                <div className="position-relative overflow-hidden mb-2">
+                  <img
+                    src={product.image_url || 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=No+Image'}
+                    className="card-img-top"
+                    alt={product.name}
+                    style={{
+                      height: '320px',
+                      objectFit: 'cover',
+                      width: '100%',
+                    }}
+                  />
+                  {product.stock_quantity === 0 && (
+                    <div className="position-absolute top-0 start-0 m-2">
+                      <span className="badge bg-danger" style={{ fontWeight: 500, fontSize: '0.8rem' }}>Hết hàng</span>
+                    </div>
+                  )}
+                  {product.sale_price && (
+                    <div className="position-absolute top-0 end-0 m-2">
+                      <span className="badge bg-warning text-dark">
+                        SALE {Math.round(((product.price - product.sale_price) / product.price) * 100)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title text-dark fw-semibold" style={{ fontSize: '1rem', minHeight: '3em', paddingLeft: '10px' }}>
+                    {product.name}
+                  </h5>
+                  <div className="mb-1 text-muted small" style={{paddingLeft: '10px'}}>{product.category_name}</div>
+                  <div className="mb-2" style={{paddingLeft: '10px'}}>
+                    {product.sale_price ? (
+                      <>
+                        <span className="fw-bold text-danger fs-5">
+                          {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                          }).format(product.sale_price)}
+                        </span>
+                        <br />
+                        <small className="text-decoration-line-through text-muted">
+                          {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                          }).format(product.price)}
+                        </small>
+                      </>
+                    ) : (
+                      <span className="fw-bold text-danger fs-5">
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND'
+                        }).format(product.price)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-auto">
+                    <button
+                      className={`btn ${product.stock_quantity === 0 ? 'btn-outline-secondary' : 'btn-dark'} w-100`}
+                      style={{ fontWeight: 600, fontSize: '0.95rem', padding: '10px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/products/${product.id}`);
+                      }}
+                    >
+                      {product.stock_quantity === 0 ? 'Xem chi tiết' : 'Xem sản phẩm'}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -152,7 +296,7 @@ const Home = () => {
 
   const renderBrandsBlock = () => (
     <div className="container my-5">
-      <h2 className="fw-bold text-primary mb-4">Thương hiệu nổi bật</h2>
+      <h2 className="fw-bold text-danger mb-4">Thương hiệu nổi bật</h2>
       <div className="d-flex flex-wrap gap-4 justify-content-center">
         <img src="/images/yonex-logo.png" alt="Yonex" style={{height:'60px'}} />
         <img src="/images/lining-logo.png" alt="Li-Ning" style={{height:'60px'}} />
@@ -170,11 +314,11 @@ const Home = () => {
       {/* Slide Banner */}
       {slides.length > 0 && (
         <div className="home-banner mb-5 position-relative">
-          <img src={slides[slideIdx].image} alt="Banner" className="w-100" style={{maxHeight:'320px',objectFit:'cover'}} />
-          <div className="home-banner-text">
-            <h1 className="fw-bold" style={{fontSize:'2.5rem'}}>{slides[slideIdx].title}</h1>
+          <img src={slides[slideIdx].image} alt="Banner" className="w-100" style={{maxHeight:'500px',objectFit:'cover'}} />
+          <div className="home-banner-text " >
+            <h1 className="fw-bold" style={{fontSize:'2rem'}}>{slides[slideIdx].title}</h1>
             <div className="fs-4">{slides[slideIdx].description}</div>
-            <div className="mt-2">
+            <div className="mt-2 ">
               <Link to={slides[slideIdx].link || '#'} className="btn btn-primary btn-lg mt-2">
                 {slides[slideIdx].button_text || 'Xem ngay'}
               </Link>
@@ -193,47 +337,130 @@ const Home = () => {
         </div>
       )}
 
+      {/* Info Bar dưới banner */}
+      <div className="container mb-4">
+        <div className="row justify-content-center g-4">
+          <div className="col-md-3 col-6">
+            <div className="info-card text-center py-3 px-2" style={{
+              border: '1px solid #f3e6df',
+              borderRadius: '16px',
+              background: '#fff',
+              color: '#d35400',
+              minHeight: 90,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: 6 }}>
+                <i className="bi bi-truck"></i>
+              </div>
+              <div>
+                <span className="fw-bold">Vận chuyển <span style={{color:'#d35400'}}>TOÀN QUỐC</span></span><br />
+                <span style={{fontSize:'0.95rem'}}>Thanh toán khi nhận hàng</span>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 col-6">
+            <div className="info-card text-center py-3 px-2" style={{
+              border: '1px solid #f3e6df',
+              borderRadius: '16px',
+              background: '#fff',
+              color: '#d35400',
+              minHeight: 90,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: 6 }}>
+                <i className="bi bi-patch-check"></i>
+              </div>
+              <div>
+                <span className="fw-bold">Bảo đảm chất lượng</span><br />
+                <span style={{fontSize:'0.95rem'}}>Sản phẩm bảo đảm chất lượng.</span>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 col-6">
+            <div className="info-card text-center py-3 px-2" style={{
+              border: '1px solid #f3e6df',
+              borderRadius: '16px',
+              background: '#fff',
+              color: '#d35400',
+              minHeight: 90,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: 6 }}>
+                <i className="bi bi-credit-card"></i>
+              </div>
+              <div>
+                <span className="fw-bold">Tiến hành <span style={{color:'#d35400'}}>THANH TOÁN</span></span><br />
+                <span style={{fontSize:'0.95rem'}}>Với nhiều <span style={{color:'#d35400'}}>PHƯƠNG THỨC</span></span>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 col-6">
+            <div className="info-card text-center py-3 px-2" style={{
+              border: '1px solid #f3e6df',
+              borderRadius: '16px',
+              background: '#fff',
+              color: '#d35400',
+              minHeight: 90,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: 6 }}>
+                <i className="bi bi-arrow-repeat"></i>
+              </div>
+              <div>
+                <span className="fw-bold">Đổi sản phẩm mới</span><br />
+                <span style={{fontSize:'0.95rem'}}>nếu sản phẩm lỗi</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Danh mục sản phẩm */}
       <div className="container mb-5">
-        <h2 className="fw-bold text-primary mb-4">Danh mục sản phẩm</h2>
+        <h2 className="fw-bold text-danger mb-4">Danh mục sản phẩm</h2>
         <div className="position-relative">
           <button
             className="btn btn-light position-absolute top-50 start-0 translate-middle-y"
-            style={{ zIndex: 2, left: -30, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            style={{ zIndex: 2, left: -30, boxShadow: '0 2px 8px rgba(0,0,0,0.08)',  }}
             onClick={() => setCategoryStartIdx(idx => Math.max(0, idx - categoriesPerView))}
             disabled={categoryStartIdx === 0}
           >
             &lt;
           </button>
-          <div className="d-flex flex-row overflow-hidden" style={{ gap: 24 }}>
-            {categories.slice(categoryStartIdx, categoryStartIdx + categoriesPerView).map(cat => (
-              <div key={cat.id} style={{ minWidth: 240, maxWidth: 260 }}>
-                <div className="card card-category h-100 d-flex flex-column align-items-center justify-content-center p-3" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)', borderRadius: 16, border: 'none', background: '#fff', minHeight: 320 }}>
-                  <div className="d-flex align-items-center justify-content-center mb-3" style={{ width: 120, height: 120, background: '#f8f9fa', borderRadius: 16, overflow: 'hidden' }}>
-                    <img
-                      src={cat.image || 'https://via.placeholder.com/120x120?text=Category'}
-                      alt={cat.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f8f9fa' }}
-                    />
+          <div className="d-flex flex-row overflow-hidden justify-content-center" style={{ gap: 15 }}>
+            {categories
+              .filter(cat => !cat.parent_id) // chỉ hiển thị danh mục cha
+              .slice(categoryStartIdx, categoryStartIdx + categoriesPerView)
+              .map(cat => (
+                <div key={cat.id} style={{ minWidth: 180, maxWidth: 200, }}>
+                  <div className="card card-category h-100 d-flex flex-column align-items-center justify-content-center p-3" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)', borderRadius: 16, border: 'none', background: '#fff', minHeight: 250 }}>
+                    <div className="d-flex align-items-center justify-content-center mb-3" style={{ width: 120, height: 120, background: '#f8f9fa', borderRadius: 16, overflow: 'hidden' }}>
+                      <img
+                        src={cat.image || 'https://via.placeholder.com/120x120?text=Category'}
+                        alt={cat.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f8f9fa' }}
+                      />
+                    </div>
+                    <h5 className="card-title text-dark fw-bold mb-2 mt-1 text-center fs-6">{cat.name}</h5>
+                    <Link
+                      to={`/products?category=${cat.id}`}
+                      className="btn btn-outline-dark w-100"
+                      style={{ borderRadius: 4, fontWeight: 400, fontSize: '0.8rem', padding: '5px 0' }}
+                    >
+                      Xem chi tiết
+                    </Link>
                   </div>
-                  <h5 className="card-title text-dark fw-bold mb-2 mt-1 text-center">{cat.name}</h5>
-                  <p className="card-text text-muted text-center mb-3" style={{ minHeight: 48 }}>{cat.description}</p>
-                  <Link
-                    to={`/products?category=${cat.id}`}
-                    className="btn btn-outline-primary w-100"
-                    style={{ borderRadius: 8, fontWeight: 600, fontSize: '1rem', padding: '10px 0' }}
-                  >
-                    Xem sản phẩm
-                  </Link>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
           <button
             className="btn btn-light position-absolute top-50 end-0 translate-middle-y"
             style={{ zIndex: 2, right: -30, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-            onClick={() => setCategoryStartIdx(idx => Math.min(categories.length - categoriesPerView, idx + categoriesPerView))}
-            disabled={categoryStartIdx + categoriesPerView >= categories.length}
+            onClick={() => setCategoryStartIdx(idx => Math.min(
+              categories.filter(cat => !cat.parent_id).length - categoriesPerView,
+              idx + categoriesPerView
+            ))}
+            disabled={categoryStartIdx + categoriesPerView >= categories.filter(cat => !cat.parent_id).length}
           >
             &gt;
           </button>
@@ -244,7 +471,10 @@ const Home = () => {
       <div className="container">
         {renderCategoryBlock(CATEGORY_IDS['vot-cau-long'], 'Vợt cầu lông', '/products?category=1')}
         {renderCategoryBlock(CATEGORY_IDS['giay-cau-long'], 'Giày cầu lông', '/products?category=2')}
-        {renderCategoryBlock(CATEGORY_IDS['ao-quan'], 'Áo quần', '/products?category=3')}
+        {renderCategoryBlock(CATEGORY_IDS['ao-cau-long'], 'Áo cầu lông', '/products?category=3')}
+        {renderCategoryBlock(CATEGORY_IDS['quan-cau-long'], 'Quần cầu lông', '/products?category=9')}
+        {renderCategoryBlock(CATEGORY_IDS['vay-cau-long'], 'Váy cầu lông', '/products?category=10')}
+        {renderCategoryBlock(CATEGORY_IDS['tui-cau-long'], 'Túi cầu lông', '/products?category=5')}
         {renderCategoryBlock(CATEGORY_IDS['phu-kien'], 'Phụ kiện', '/products?category=4')}
       </div>
 

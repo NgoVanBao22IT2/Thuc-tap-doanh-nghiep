@@ -129,7 +129,7 @@ const ProductDetail = () => {
           <div className="mb-2">
             <span className="badge bg-primary me-2">{product.category_name}</span>
             {product.brand_name && (
-              <span className="badge bg-secondary">{product.brand_name}</span>
+              <span className="badge bg-success">{product.brand_name}</span>
             )}
           </div>
           <div className="mb-3">
@@ -192,7 +192,7 @@ const ProductDetail = () => {
                 </div>
                 <div className="col">
                   <button 
-                    className="btn btn-dark btn-lg px-4"
+                    className="btn btn-outline-dark fw-bold btn-lg px-3 fs-6" style={{height:'38px',}}
                     onClick={handleAddToCart}
                   >
                     <i className="bi bi-cart-plus me-2"></i>
@@ -230,7 +230,7 @@ const ProductDetail = () => {
             </table>
           </div>
           {/* Features */}
-          <div className="row mb-4">
+          <div className="row mb-2">
             <div className="col-md-4 mb-2">
               <div className="border rounded p-2 d-flex align-items-center gap-2">
                 <span className="badge bg-success rounded-circle" style={{width:'32px',height:'32px'}}>1</span>

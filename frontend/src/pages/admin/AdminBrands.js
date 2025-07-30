@@ -146,8 +146,10 @@ const AdminBrands = () => {
               </tr>
             </thead>
             <tbody>
-              {brands.map(brand => (
-                <tr key={brand.id}>
+      {[...brands]
+        .sort((a, b) => a.id - b.id)
+        .map(brand => (                
+              <tr key={brand.id}>
                   <td>{brand.id}</td>
                   <td>
                     {brand.logo ? (

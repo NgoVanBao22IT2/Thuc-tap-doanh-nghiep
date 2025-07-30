@@ -19,7 +19,7 @@ const Navbar = () => {
   const isAdmin = currentUser?.role === 'admin';
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light ">
       <div className="container">
         <Link className="navbar-brand" to={isAdmin && isAdminPage ? "/admin" : "/"}
           >
@@ -63,7 +63,7 @@ const Navbar = () => {
                 <Link className="nav-link" to="/products">Sản phẩm</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/categories">Danh mục</Link>
+                <Link className="nav-link" to="/contact">Liên hệ</Link>
               </li>
             </ul>
           )}

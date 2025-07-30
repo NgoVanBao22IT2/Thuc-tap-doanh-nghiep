@@ -53,7 +53,7 @@ router.post('/', verifyToken, verifyAdmin, (req, res) => {
   } = req.body;
 
   // Validate required fields
-  if (!name || !price || !stock_quantity || !category_id || !sku) {
+  if (!name || !price || stock_quantity === undefined || stock_quantity === null || !category_id || !sku) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
@@ -101,7 +101,7 @@ router.put('/:id', verifyToken, verifyAdmin, (req, res) => {
   } = req.body;
 
   // Validate required fields
-  if (!name || !price || !stock_quantity || !category_id || !sku) {
+  if (!name || !price || stock_quantity === undefined || stock_quantity === null || !category_id || !sku) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
