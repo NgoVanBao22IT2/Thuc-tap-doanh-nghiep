@@ -57,7 +57,7 @@ const ProductDetail = () => {
         <div className="text-center py-5">
           <h3>Không tìm thấy sản phẩm</h3>
           <button 
-            className="btn btn-primary mt-3"
+            className="btn btn-dark mt-3"
             onClick={() => navigate('/products')}
           >
             Quay lại danh sách sản phẩm
@@ -82,6 +82,8 @@ const ProductDetail = () => {
             <button 
               className="btn btn-link p-0"
               onClick={() => navigate('/')}
+              style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
+
             >
               Trang chủ
             </button>
@@ -90,6 +92,8 @@ const ProductDetail = () => {
             <button 
               className="btn btn-link p-0"
               onClick={() => navigate('/products')}
+              style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
+
             >
               Sản phẩm
             </button>
@@ -169,21 +173,21 @@ const ProductDetail = () => {
                   <label className="form-label fw-medium">Số lượng:</label>
                   <div className="input-group" style={{width: '150px'}}>
                     <button 
-                      className="btn btn-outline-secondary"
+                      className="btn btn-outline-success"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     >
                       <i className="bi bi-dash"></i>
                     </button>
                     <input 
                       type="number" 
-                      className="form-control text-center"
+                      className="form-control text-center "
                       value={quantity}
                       onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock_quantity, parseInt(e.target.value) || 1)))}
                       min="1"
                       max={product.stock_quantity}
                     />
                     <button 
-                      className="btn btn-outline-secondary"
+                      className="btn btn-outline-success"
                       onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))}
                     >
                       <i className="bi bi-plus"></i>
@@ -192,7 +196,7 @@ const ProductDetail = () => {
                 </div>
                 <div className="col">
                   <button 
-                    className="btn btn-outline-dark fw-bold btn-lg px-3 fs-6" style={{height:'38px',}}
+                    className="btn btn-outline-success fw-bold btn-lg px-3 fs-6" style={{height:'38px',}}
                     onClick={handleAddToCart}
                   >
                     <i className="bi bi-cart-plus me-2"></i>
@@ -233,19 +237,19 @@ const ProductDetail = () => {
           <div className="row mb-2">
             <div className="col-md-4 mb-2">
               <div className="border rounded p-2 d-flex align-items-center gap-2">
-                <span className="badge bg-success rounded-circle" style={{width:'32px',height:'32px'}}>1</span>
+                <span className="badge bg-success rounded-circle" style={{width:'32px',height:'32px', paddingTop: '10px'}}>1</span>
                 <span>Cam kết chính hãng 100%</span>
               </div>
             </div>
             <div className="col-md-4 mb-2">
               <div className="border rounded p-2 d-flex align-items-center gap-2">
-                <span className="badge bg-success rounded-circle" style={{width:'32px',height:'32px'}}>2</span>
+                <span className="badge bg-success rounded-circle" style={{width:'32px',height:'32px', paddingTop: '10px'}}>2</span>
                 <span>Bảo hành theo chính sách công ty</span>
               </div>
             </div>
             <div className="col-md-4 mb-2">
               <div className="border rounded p-2 d-flex align-items-center gap-2">
-                <span className="badge bg-success rounded-circle" style={{width:'32px',height:'32px'}}>3</span>
+                <span className="badge bg-success rounded-circle" style={{width:'32px',height:'32px', paddingTop: '10px'}}>3</span>
                 <span>Giao hàng nhanh toàn quốc</span>
               </div>
             </div>
@@ -258,7 +262,7 @@ const ProductDetail = () => {
           <div className="col-12">
             <div className="card">
               <div className="card-header">
-                <h5 className="mb-0">
+                <h5 className="mb-0 text-success">
                   <i className="bi bi-file-text me-2"></i>
                   Mô tả sản phẩm
                 </h5>

@@ -23,6 +23,8 @@ import AdminSettings from './pages/admin/AdminSettings';
 import AdminSlides from './pages/admin/AdminSlides';
 import ProtectedRoute from './components/ProtectedRoute';
 import Categories from './pages/Categories';
+import Contact from './pages/Contact';
+import OrdersHistory from './pages/OrdersHistory';
 
 function AppContent() {
   const location = useLocation();
@@ -36,6 +38,7 @@ function AppContent() {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
@@ -46,6 +49,11 @@ function AppContent() {
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders-history" element={
+            <ProtectedRoute>
+              <OrdersHistory />
             </ProtectedRoute>
           } />
           

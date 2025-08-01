@@ -191,7 +191,7 @@ const Products = () => {
             <button
               className="btn btn-link p-0"
               onClick={() => navigate('/')}
-              style={{ color: '#0d6efd', textDecoration: 'underline', fontWeight: 500 }}
+              style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
             >
               Trang chủ
             </button>
@@ -200,7 +200,7 @@ const Products = () => {
             <button
               className="btn btn-link p-0"
               onClick={() => navigate('/products')}
-              style={{ color: '#0d6efd', textDecoration: 'underline', fontWeight: 500 }}
+              style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
             >
               Sản phẩm
             </button>
@@ -265,7 +265,7 @@ const Products = () => {
               ))}
             </div>
             <button
-              className="btn btn-outline-secondary mt-3"
+              className="btn btn-outline-success mt-3"
               onClick={() => {
                 setSelectedPrice('');
                 setSelectedBrand('');
@@ -287,7 +287,7 @@ const Products = () => {
                   <React.Fragment key={parent.id}>
                     <li>
                       <button
-                        className={`btn btn-link p-0 ${selectedCategory == parent.id ? 'text-danger' : 'text-dark'}`}
+                        className={`btn btn-link p-0 ${selectedCategory == parent.id ? 'text-success fw-bold' : 'text-dark'}`}
                         style={{ fontSize: '1rem', textDecoration: 'none' }}
                         onClick={() => {
                           setSelectedCategory(parent.id);
@@ -302,7 +302,7 @@ const Products = () => {
                       .map(child => (
                         <li key={child.id} style={{ marginLeft: 12 }}>
                           <button
-                            className={`btn btn-link p-0 ${selectedCategory == child.id ? 'text-danger' : 'text-dark'}`}
+                            className={`btn btn-link p-0 ${selectedCategory == child.id ? 'text-success fw-bold' : 'text-dark'}`}
                             style={{ fontSize: '1rem', textDecoration: 'none' }}
                             onClick={() => {
                               setSelectedCategory(child.id);
@@ -352,7 +352,7 @@ const Products = () => {
               style={{ maxWidth: 350 }}
             />
             <button
-              className="btn btn-outline-secondary ms-2"
+              className="btn btn-outline-success ms-2"
               onClick={() => setSearchTerm('')}
             >
               Xóa tìm kiếm
@@ -469,7 +469,7 @@ const Products = () => {
                     // Nếu không phải danh mục cha, hiển thị như cũ
                     Object.entries(groupedPagedProducts).map(([category, items]) => (
                       <div key={category} className="mb-5">
-                        <h4 className="fw-bold text-primary mb-3">{category}</h4>
+                        <h4 className="fw-bold text-success mb-3">{category}</h4>
                         <div className="row g-3">
                           {items.map((product, index) => (
                             <div key={product.id} className="col-xl-3 col-lg-4 col-md-6">

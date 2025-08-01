@@ -21,6 +21,10 @@ const AdminCoupons = () => {
     status: 'active'
   });
   const [loading, setLoading] = useState(true);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState('');
 
   useEffect(() => {
     fetchCoupons();
@@ -35,6 +39,11 @@ const AdminCoupons = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchUsers = async () => {
+    const res = await axios.get('/api/users/admin');
+    setUsers(res.data);
   };
 
   const handleSubmit = async (e) => {
@@ -139,6 +148,12 @@ const AdminCoupons = () => {
     }
   };
 
+  const handleAssignCoupon = async () => {
+    await axios.post('/api/coupons/assign', { coupon_id: selectedCoupon.id, user_id: selectedUserId });
+    alert('Gán mã cho user thành công!');
+    setShowAssignModal(false);
+  };
+
   return (
     <AdminLayout>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -212,10 +227,20 @@ const AdminCoupons = () => {
                       Sửa
                     </button>
                     <button 
-                      className="btn btn-sm btn-outline-danger"
+                      className="btn btn-sm btn-outline-danger me-2"
                       onClick={() => handleDelete(coupon.id)}
                     >
                       Xóa
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-success"
+                      onClick={() => {
+                        setSelectedCoupon(coupon);
+                        fetchUsers();
+                        setShowAssignModal(true);
+                      }}
+                    >
+                      Áp dụng
                     </button>
                   </td>
                 </tr>
@@ -369,6 +394,32 @@ const AdminCoupons = () => {
         </div>
       )}
       {showModal && <div className="modal-backdrop show"></div>}
+
+      {/* Modal gán mã cho user */}
+      {showAssignModal && (
+        <div className="modal show d-block">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Gán mã cho người dùng</h5>
+                <button type="button" className="btn-close" onClick={() => setShowAssignModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <select className="form-select" value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}>
+                  <option value="">Chọn người dùng</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-success" onClick={handleAssignCoupon}>Áp dụng</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showAssignModal && <div className="modal-backdrop show"></div>}
     </AdminLayout>
   );
 };

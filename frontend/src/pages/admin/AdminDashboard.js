@@ -214,6 +214,9 @@ const AdminDashboard = () => {
                     <th>Khách hàng</th>
                     <th>Sản phẩm</th>
                     <th>Tổng tiền</th>
+                    <th>Mã giảm giá</th>
+                    <th>Phí giao hàng</th>
+                    <th>SĐT nhận hàng</th>
                     <th>Trạng thái</th>
                     <th>Ngày đặt</th>
                   </tr>
@@ -242,6 +245,18 @@ const AdminDashboard = () => {
                             currency: 'VND' 
                           }).format(order.total_amount)}
                         </span>
+                      </td>
+                      <td>
+                        {order.coupon_code || <span className="text-muted">-</span>}
+                      </td>
+                      <td>
+                        {order.shipping_fee !== undefined
+                          ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.shipping_fee)
+                          : <span className="text-muted">-</span>
+                        }
+                      </td>
+                      <td>
+                        {order.customer_phone || <span className="text-muted">-</span>}
                       </td>
                       <td>
                         <span className={`badge ${getStatusBadgeClass(order.status)}`}>

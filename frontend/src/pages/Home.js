@@ -189,7 +189,6 @@ const Home = () => {
         <div className="row g-4">
           {products.slice(0, 4).map(product => (
             <div key={product.id} className="col-lg-3 col-md-4 col-sm-6">
-              {/* Nút xem chi tiết sản phẩm luôn đúng */}
               <div
                 className="product-card h-100 fade-in-up"
                 style={{
@@ -283,7 +282,7 @@ const Home = () => {
 
   const renderBestSellerBlock = () => (
     <div className="mb-5">
-      <h2 className="fw-bold text-danger mb-4">Top sản phẩm bán chạy</h2>
+      <h2 className="fw-bold text-success mb-4">Top sản phẩm bán chạy</h2>
       <div className="row g-4">
         {bestSellers.map(product => (
           <div key={product.id} className="col-lg-3 col-md-4 col-sm-6">
@@ -296,7 +295,7 @@ const Home = () => {
 
   const renderBrandsBlock = () => (
     <div className="container my-5">
-      <h2 className="fw-bold text-danger mb-4">Thương hiệu nổi bật</h2>
+      <h2 className="fw-bold text-success mb-4">Thương hiệu nổi bật</h2>
       <div className="d-flex flex-wrap gap-4 justify-content-center">
         <img src="/images/yonex-logo.png" alt="Yonex" style={{height:'60px'}} />
         <img src="/images/lining-logo.png" alt="Li-Ning" style={{height:'60px'}} />
@@ -319,7 +318,7 @@ const Home = () => {
             <h1 className="fw-bold" style={{fontSize:'2rem'}}>{slides[slideIdx].title}</h1>
             <div className="fs-4">{slides[slideIdx].description}</div>
             <div className="mt-2 ">
-              <Link to={slides[slideIdx].link || '#'} className="btn btn-primary btn-lg mt-2">
+              <Link to={slides[slideIdx].link || '#'} className="btn btn-success btn-lg mt-2">
                 {slides[slideIdx].button_text || 'Xem ngay'}
               </Link>
             </div>
@@ -342,10 +341,10 @@ const Home = () => {
         <div className="row justify-content-center g-4">
           <div className="col-md-3 col-6">
             <div className="info-card text-center py-3 px-2" style={{
-              border: '1px solid #f3e6df',
+              border: '1px solid #dff3e0ff',
               borderRadius: '16px',
               background: '#fff',
-              color: '#d35400',
+              color: '#00a61eff',
               minHeight: 90,
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}>
@@ -353,17 +352,17 @@ const Home = () => {
                 <i className="bi bi-truck"></i>
               </div>
               <div>
-                <span className="fw-bold">Vận chuyển <span style={{color:'#d35400'}}>TOÀN QUỐC</span></span><br />
+                <span className="fw-bold">Vận chuyển <span style={{color:'#00a61eff'}}>TOÀN QUỐC</span></span><br />
                 <span style={{fontSize:'0.95rem'}}>Thanh toán khi nhận hàng</span>
               </div>
             </div>
           </div>
           <div className="col-md-3 col-6">
             <div className="info-card text-center py-3 px-2" style={{
-              border: '1px solid #f3e6df',
+              border: '1px solid #dff3e0ff',
               borderRadius: '16px',
               background: '#fff',
-              color: '#d35400',
+              color: '#00a61eff',
               minHeight: 90,
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}>
@@ -378,10 +377,10 @@ const Home = () => {
           </div>
           <div className="col-md-3 col-6">
             <div className="info-card text-center py-3 px-2" style={{
-              border: '1px solid #f3e6df',
+              border: '1px solid #dff3e0ff',
               borderRadius: '16px',
               background: '#fff',
-              color: '#d35400',
+              color: '#00a61eff',
               minHeight: 90,
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}>
@@ -389,17 +388,17 @@ const Home = () => {
                 <i className="bi bi-credit-card"></i>
               </div>
               <div>
-                <span className="fw-bold">Tiến hành <span style={{color:'#d35400'}}>THANH TOÁN</span></span><br />
-                <span style={{fontSize:'0.95rem'}}>Với nhiều <span style={{color:'#d35400'}}>PHƯƠNG THỨC</span></span>
+                <span className="fw-bold">Tiến hành <span style={{color:'#00a61eff'}}>THANH TOÁN</span></span><br />
+                <span style={{fontSize:'0.95rem'}}>Với nhiều <span style={{color:'#00a61eff'}}>PHƯƠNG THỨC</span></span>
               </div>
             </div>
           </div>
           <div className="col-md-3 col-6">
             <div className="info-card text-center py-3 px-2" style={{
-              border: '1px solid #f3e6df',
+              border: '1px solid #dff3e0ff',
               borderRadius: '16px',
               background: '#fff',
-              color: '#d35400',
+              color: '#00a61eff',
               minHeight: 90,
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}>
@@ -417,7 +416,7 @@ const Home = () => {
 
       {/* Danh mục sản phẩm */}
       <div className="container mb-5">
-        <h2 className="fw-bold text-danger mb-4">Danh mục sản phẩm</h2>
+        <h2 className="fw-bold text-success mb-4">Danh mục sản phẩm</h2>
         <div className="position-relative">
           <button
             className="btn btn-light position-absolute top-50 start-0 translate-middle-y"
@@ -441,10 +440,10 @@ const Home = () => {
                         style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#f8f9fa' }}
                       />
                     </div>
-                    <h5 className="card-title text-dark fw-bold mb-2 mt-1 text-center fs-6">{cat.name}</h5>
+                    <h5 className="card-title text-success fw-bold mb-2 mt-1 text-center fs-6">{cat.name}</h5>
                     <Link
                       to={`/products?category=${cat.id}`}
-                      className="btn btn-outline-dark w-100"
+                      className="btn btn-outline-success w-100"
                       style={{ borderRadius: 4, fontWeight: 400, fontSize: '0.8rem', padding: '5px 0' }}
                     >
                       Xem chi tiết

@@ -121,47 +121,15 @@ const AdminContacts = () => {
                     {new Date(contact.created_at).toLocaleDateString('vi-VN')}
                   </td>
                   <td>
-                    <div className="dropdown">
-                      <button 
-                        className="btn btn-sm btn-outline-primary dropdown-toggle" 
-                        type="button" 
-                        data-bs-toggle="dropdown"
-                      >
-                        Thao tác
-                      </button>
-                      <ul className="dropdown-menu">
-                        <li>
-                          <button 
-                            className="dropdown-item"
-                            onClick={() => {
-                              setSelectedContact(contact);
-                              setShowModal(true);
-                            }}
-                          >
-                            Xem chi tiết & Trả lời
-                          </button>
-                        </li>
-                        <li><hr className="dropdown-divider" /></li>
-                        <li>
-                          <button 
-                            className="dropdown-item"
-                            onClick={() => updateContactStatus(contact.id, 'processing')}
-                            disabled={contact.status === 'resolved'}
-                          >
-                            Đánh dấu đang xử lý
-                          </button>
-                        </li>
-                        <li>
-                          <button 
-                            className="dropdown-item"
-                            onClick={() => updateContactStatus(contact.id, 'resolved')}
-                            disabled={contact.status === 'resolved'}
-                          >
-                            Đánh dấu đã giải quyết
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => {
+                        setSelectedContact(contact);
+                        setShowModal(true);
+                      }}
+                    >
+                      Thao tác
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -172,106 +140,128 @@ const AdminContacts = () => {
 
       {/* Modal */}
       {showModal && selectedContact && (
-        <div className="modal show d-block admin-modal" tabIndex="-1">
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Chi tiết liên hệ</h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
-                  onClick={() => {
-                    setShowModal(false);
-                    setSelectedContact(null);
-                    setReply('');
-                  }}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <strong>Họ tên:</strong> {selectedContact.name}
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Email:</strong> {selectedContact.email}
-                  </div>
+        <div>
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{
+              zIndex: 1060,
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Chi tiết liên hệ</h5>
+                  <button 
+                    type="button" 
+                    className="btn-close" 
+                    onClick={() => {
+                      setShowModal(false);
+                      setSelectedContact(null);
+                      setReply('');
+                    }}
+                  ></button>
                 </div>
-                
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <strong>Số điện thoại:</strong> {selectedContact.phone || 'Chưa có'}
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Trạng thái:</strong>{' '}
-                    <span className={`badge ${getStatusBadgeClass(selectedContact.status)}`}>
-                      {getStatusText(selectedContact.status)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <strong>Chủ đề:</strong>
-                  <div className="mt-1">{selectedContact.subject}</div>
-                </div>
-
-                <div className="mb-3">
-                  <strong>Nội dung:</strong>
-                  <div className="mt-1 p-3 bg-light rounded">
-                    {selectedContact.message}
-                  </div>
-                </div>
-
-                {selectedContact.admin_reply && (
-                  <div className="mb-3">
-                    <strong>Phản hồi của admin:</strong>
-                    <div className="mt-1 p-3 bg-primary text-white rounded">
-                      {selectedContact.admin_reply}
+                <div className="modal-body">
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <strong>Họ tên:</strong> {selectedContact.name}
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Email:</strong> {selectedContact.email}
                     </div>
                   </div>
-                )}
-
-                {selectedContact.status !== 'resolved' && (
-                  <div className="mb-3">
-                    <label className="form-label"><strong>Trả lời:</strong></label>
-                    <textarea
-                      className="form-control"
-                      rows="4"
-                      value={reply}
-                      onChange={(e) => setReply(e.target.value)}
-                      placeholder="Nhập phản hồi cho khách hàng..."
-                    />
+                  
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <strong>Số điện thoại:</strong> {selectedContact.phone || 'Chưa có'}
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Trạng thái:</strong>{' '}
+                      <span className={`badge ${getStatusBadgeClass(selectedContact.status)}`}>
+                        {getStatusText(selectedContact.status)}
+                      </span>
+                    </div>
                   </div>
-                )}
-              </div>
-              <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
-                  onClick={() => {
-                    setShowModal(false);
-                    setSelectedContact(null);
-                    setReply('');
-                  }}
-                >
-                  Đóng
-                </button>
-                {selectedContact.status !== 'resolved' && (
+
+                  <div className="mb-3">
+                    <strong>Chủ đề:</strong>
+                    <div className="mt-1">{selectedContact.subject}</div>
+                  </div>
+
+                  <div className="mb-3">
+                    <strong>Nội dung:</strong>
+                    <div className="mt-1 p-3 bg-light rounded">
+                      {selectedContact.message}
+                    </div>
+                  </div>
+
+                  {selectedContact.admin_reply && (
+                    <div className="mb-3">
+                      <strong>Phản hồi của admin:</strong>
+                      <div className="mt-1 p-3 bg-primary text-white rounded">
+                        {selectedContact.admin_reply}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedContact.status !== 'resolved' && (
+                    <div className="mb-3">
+                      <label className="form-label"><strong>Trả lời:</strong></label>
+                      <textarea
+                        className="form-control"
+                        rows="4"
+                        value={reply}
+                        onChange={(e) => setReply(e.target.value)}
+                        placeholder="Nhập phản hồi cho khách hàng..."
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="modal-footer">
                   <button 
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleReply}
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowModal(false);
+                      setSelectedContact(null);
+                      setReply('');
+                    }}
                   >
-                    Gửi phản hồi
+                    Đóng
                   </button>
-                )}
+                  {selectedContact.status !== 'resolved' && (
+                    <button 
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleReply}
+                    >
+                      Gửi phản hồi
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
+          <div
+            className="modal-backdrop show"
+            style={{
+              zIndex: 1050,
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0
+            }}
+          ></div>
         </div>
       )}
-      {showModal && <div className="modal-backdrop show"></div>}
     </AdminLayout>
   );
 };
+
+
 
 export default AdminContacts;

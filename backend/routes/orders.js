@@ -42,21 +42,53 @@ router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
 });
 
 // Create order
-router.post('/', verifyToken, (req, res) => {
-  const { items, total_amount, shipping_address } = req.body;
-  
+router.post('/', (req, res) => {
+  const {
+    items,
+    total_amount,
+    shipping_address,
+    shipping_fee,
+    customer_phone,
+    payment_method,
+    coupon_code,
+    discount_amount,
+    user_id,
+    coupon_id
+  } = req.body;
+
+  if (!user_id || !items || !shipping_address || !customer_phone) {
+    return res.status(400).json({ success: false, message: 'Thiếu thông tin đơn hàng' });
+  }
+
+  // Tạo mã đơn hàng tự động
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0,10).replace(/-/g,''); // YYYYMMDD
+  const randStr = Math.floor(1000 + Math.random() * 9000); // 4 số ngẫu nhiên
+  const orderNumber = `ORD${dateStr}${randStr}`;
+
   db.beginTransaction((err) => {
     if (err) return res.status(500).json({ message: 'Transaction error' });
     
     // Create order
     db.query(
-      'INSERT INTO orders (user_id, total_amount, shipping_address) VALUES (?, ?, ?)',
-      [req.user.id, total_amount, shipping_address],
+      `INSERT INTO orders (order_number, user_id, total_amount, shipping_address, shipping_fee, customer_phone, payment_method, coupon_id, coupon_code, discount_amount, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        orderNumber,
+        user_id,
+        total_amount,
+        shipping_address,
+        shipping_fee,
+        customer_phone, // đúng tên trường
+        payment_method,
+        coupon_id || null, // truyền coupon_id nếu có, nếu không thì null
+        coupon_code || null,
+        discount_amount || 0
+      ],
       (err, orderResult) => {
         if (err) {
-          return db.rollback(() => {
-            res.status(500).json({ message: 'Database error' });
-          });
+          console.error('Order insert error:', err); // log lỗi chi tiết
+          return res.status(500).json({ success: false, message: 'Database error', error: err.message });
         }
         
         const orderId = orderResult.insertId;

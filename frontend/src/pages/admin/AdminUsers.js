@@ -14,6 +14,8 @@ const AdminUsers = () => {
     role: 'user',
     password: ''
   });
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -119,6 +121,16 @@ const AdminUsers = () => {
     resetForm();
   };
 
+  const openActionModal = (user) => {
+    setSelectedUser(user);
+    setShowActionModal(true);
+  };
+
+  const closeActionModal = () => {
+    setShowActionModal(false);
+    setSelectedUser(null);
+  };
+
   return (
     <AdminLayout>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -167,42 +179,12 @@ const AdminUsers = () => {
                     {new Date(user.created_at).toLocaleDateString('vi-VN')}
                   </td>
                   <td>
-                    <div className="dropdown">
-                      <button 
-                        className="btn btn-sm btn-outline-primary dropdown-toggle" 
-                        type="button" 
-                        data-bs-toggle="dropdown"
-                      >
-                        Thao tác
-                      </button>
-                      <ul className="dropdown-menu">
-                        <li>
-                          <button 
-                            className="dropdown-item"
-                            onClick={() => handleEdit(user)}
-                          >
-                            Sửa thông tin
-                          </button>
-                        </li>
-                        <li>
-                          <button 
-                            className="dropdown-item"
-                            onClick={() => updateUserRole(user.id, user.role === 'admin' ? 'user' : 'admin')}
-                          >
-                            {user.role === 'admin' ? 'Chuyển thành User' : 'Chuyển thành Admin'}
-                          </button>
-                        </li>
-                        <li><hr className="dropdown-divider" /></li>
-                        <li>
-                          <button 
-                            className="dropdown-item text-danger"
-                            onClick={() => deleteUser(user.id)}
-                          >
-                            Xóa người dùng
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => openActionModal(user)}
+                    >
+                      Thao tác
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -304,6 +286,64 @@ const AdminUsers = () => {
         </div>
       )}
       {showModal && <div className="modal-backdrop show"></div>}
+
+      {/* Action Modal */}
+      {showActionModal && selectedUser && (
+        <div>
+          <div className="modal show d-block" tabIndex="-1"
+            style={{
+              zIndex: 1060,
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Thao tác với người dùng #{selectedUser.id}</h5>
+                  <button type="button" className="btn-close" onClick={closeActionModal}></button>
+                </div>
+                <div className="modal-body">
+                  <div className="d-grid gap-2">
+                    <button
+                      className="btn btn-outline-primary"
+                      onClick={() => { closeActionModal(); handleEdit(selectedUser); }}
+                    >
+                      Sửa thông tin
+                    </button>
+                    <button
+                      className="btn btn-outline-warning"
+                      onClick={() => {
+                        closeActionModal();
+                        updateUserRole(selectedUser.id, selectedUser.role === 'admin' ? 'user' : 'admin');
+                      }}
+                    >
+                      {selectedUser.role === 'admin' ? 'Chuyển thành User' : 'Chuyển thành Admin'}
+                    </button>
+                    <button
+                      className="btn btn-outline-danger"
+                      onClick={() => { closeActionModal(); deleteUser(selectedUser.id); }}
+                    >
+                      Xóa người dùng
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            className="modal-backdrop show"
+            style={{
+              zIndex: 1050,
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0
+            }}
+          ></div>
+        </div>
+      )}
     </AdminLayout>
   );
 };

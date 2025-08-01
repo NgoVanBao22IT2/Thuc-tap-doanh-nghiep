@@ -10,6 +10,37 @@ const Cart = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cod'); // Thêm state cho phương thức thanh toán
+  const [couponCode, setCouponCode] = useState('');
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [phone, setPhone] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+
+  React.useEffect(() => {
+    // Lấy ngưỡng miễn phí ship từ settings
+    axios.get('/api/settings').then(res => {
+      const threshold = res.data.find(s => s.key_name === 'free_shipping_threshold');
+      setFreeShippingThreshold(threshold ? parseInt(threshold.value) : 0);
+    });
+  }, []);
+
+  React.useEffect(() => {
+    // Tính phí giao hàng
+    const total = getCartTotal() - discountAmount;
+    setShippingFee(total >= freeShippingThreshold ? 0 : 30000);
+  }, [getCartTotal(), discountAmount, freeShippingThreshold]);
+
+  // Lấy danh sách mã giảm giá từ database khi vào trang
+  React.useEffect(() => {
+    if (currentUser) {
+      axios.get(`/api/coupons/available?user_id=${currentUser.id}`)
+        .then(res => setAvailableCoupons(res.data))
+        .catch(() => setAvailableCoupons([]));
+    }
+  }, [currentUser]);
 
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity <= 0) {
@@ -19,19 +50,44 @@ const Cart = () => {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    setCouponError('');
+    if (!couponCode.trim()) return;
+    try {
+      const res = await axios.post('/api/coupons/apply', {
+        code: couponCode,
+        total_amount: getCartTotal(),
+        user_id: currentUser?.id // truyền user_id để backend kiểm tra đúng user
+      });
+      if (res.data.success) {
+        setDiscountAmount(res.data.discount);
+        setCouponError('');
+      } else {
+        setDiscountAmount(0);
+        setCouponError(res.data.message || 'Mã giảm giá không hợp lệ');
+      }
+    } catch (err) {
+      setDiscountAmount(0);
+      setCouponError('Mã giảm giá không hợp lệ');
+    }
+  };
+
   const handleCheckout = async () => {
     if (!currentUser) {
       navigate('/login');
       return;
     }
-
     if (!shippingAddress.trim()) {
       alert('Vui lòng nhập địa chỉ giao hàng!');
       return;
     }
-
+    if (!phone.trim()) {
+      alert('Vui lòng nhập số điện thoại!');
+      return;
+    }
     setLoading(true);
     try {
+      const selectedCouponObj = availableCoupons.find(c => c.code === couponCode);
       const orderData = {
         items: cartItems.map(item => ({
           product_id: item.id,
@@ -39,16 +95,35 @@ const Cart = () => {
           price: item.price
         })),
         total_amount: getCartTotal(),
-        shipping_address: shippingAddress
+        shipping_address: shippingAddress,
+        shipping_fee: shippingFee,
+        customer_phone: phone,
+        payment_method: paymentMethod,
+        coupon_code: couponCode,
+        discount_amount: discountAmount,
+        coupon_id: selectedCouponObj?.id || null, // truyền coupon_id nếu có
+        user_id: currentUser?.id // truyền user_id cho backend
       };
-
-      await axios.post('/api/orders', orderData);
+      const res = await axios.post('/api/orders', orderData);
+      // Nếu backend trả về lỗi database, có thể là do dữ liệu không hợp lệ hoặc thiếu trường bắt buộc
+      if (res.data && res.data.success === false) {
+        alert(res.data.message || 'Có lỗi xảy ra khi đặt hàng!');
+        setLoading(false);
+        return;
+      }
       clearCart();
       alert('Đặt hàng thành công!');
-      navigate('/profile');
+      if (paymentMethod === 'bank') {
+        navigate('/payment-bank-info');
+      } else {
+        navigate('/profile');
+      }
     } catch (error) {
-      console.error('Error creating order:', error);
-      alert('Có lỗi xảy ra khi đặt hàng!');
+      // Nếu lỗi database, kiểm tra lại dữ liệu gửi lên backend
+      const msg = error.response?.data?.message || error.message || 'Có lỗi xảy ra khi đặt hàng!';
+      alert(msg);
+      // Gợi ý kiểm tra lại các trường dữ liệu: product_id, quantity, price, shipping_address, payment_method
+      // Nếu vẫn lỗi, kiểm tra lại API backend /api/orders
     } finally {
       setLoading(false);
     }
@@ -91,7 +166,7 @@ const Cart = () => {
                       <div className="col-md-6">
                         <h5 className="card-title">{item.name}</h5>
                         <p className="card-text text-muted">{item.category_name}</p>
-                        <p className="card-text fw-bold text-primary">
+                        <p className="card-text fw-bold text-danger">
                           {new Intl.NumberFormat('vi-VN', { 
                             style: 'currency', 
                             currency: 'VND' 
@@ -144,7 +219,7 @@ const Cart = () => {
               <hr />
               <div className="d-flex justify-content-between mb-3">
                 <span>Tổng cộng:</span>
-                <strong className="text-primary fs-4">
+                <strong className="text-danger fs-4">
                   {new Intl.NumberFormat('vi-VN', { 
                     style: 'currency', 
                     currency: 'VND' 
@@ -166,15 +241,107 @@ const Cart = () => {
                 />
               </div>
               
+              {/* Nhập số điện thoại nhận hàng */}
+              <div className="mb-3">
+                <label htmlFor="phone" className="form-label">
+                  Số điện thoại nhận hàng:
+                </label>
+                <input
+                  id="phone"
+                  className="form-control"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  placeholder="Nhập số điện thoại..."
+                />
+              </div>
+              
+              {/* Chọn phương thức thanh toán */}
+              <div className="mb-3">
+                <label className="form-label">Phương thức thanh toán:</label>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="paymentMethod"
+                    id="payment-cod"
+                    value="cod"
+                    checked={paymentMethod === 'cod'}
+                    onChange={e => setPaymentMethod(e.target.value)}
+                  />
+                  <label className="form-check-label" htmlFor="payment-cod">
+                    Thanh toán khi nhận hàng (COD)
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="paymentMethod"
+                    id="payment-bank"
+                    value="bank"
+                    checked={paymentMethod === 'bank'}
+                    onChange={e => setPaymentMethod(e.target.value)}
+                  />
+                  <label className="form-check-label" htmlFor="payment-bank">
+                    Chuyển khoản ngân hàng
+                  </label>
+                </div>
+                {/* Có thể thêm các phương thức khác nếu cần */}
+              </div>
+              
+              {/* Nhập mã giảm giá */}
+              <div className="mb-3">
+                <label className="form-label">Mã giảm giá:</label>
+                {availableCoupons.length === 0 ? (
+                  <div className="text-muted">Không có mã giảm giá</div>
+                ) : (
+                  <div className="input-group">
+                    <select
+                      className="form-select"
+                      value={couponCode}
+                      onChange={e => setCouponCode(e.target.value)}
+                    >
+                      <option value="">-- Chọn mã giảm giá --</option>
+                      {availableCoupons.map(coupon => (
+                        <option key={coupon.code} value={coupon.code}>
+                          {coupon.code} - {coupon.name} ({coupon.type === 'percentage' ? `${coupon.value}%` : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(coupon.value)})
+                          {coupon.description ? ` - ${coupon.description}` : ''}
+                          {coupon.valid_to ? ` - HSD: ${new Date(coupon.valid_to).toLocaleDateString('vi-VN')}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <button className="btn btn-outline-primary" type="button" onClick={handleApplyCoupon}>
+                      Áp dụng
+                    </button>
+                  </div>
+                )}
+                {couponError && <div className="text-danger mt-1">{couponError}</div>}
+                {discountAmount > 0 && (
+                  <div className="text-success mt-1">Đã giảm: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discountAmount)}</div>
+                )}
+              </div>
+              
+              <div className="mb-3 d-flex justify-content-between">
+                <span>Phí giao hàng:</span>
+                <span className="fw-bold">{shippingFee === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)}</span>
+              </div>
+              
+              <div className="mb-3 d-flex justify-content-between">
+                <span>Tổng cộng sau giảm giá:</span>
+                <strong className="text-danger fs-4">
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(getCartTotal() - discountAmount + shippingFee)}
+                </strong>
+              </div>
+              
               <button 
-                className="btn btn-primary w-100 mb-2"
+                className="btn btn-success w-100 mb-2"
                 onClick={handleCheckout}
                 disabled={loading}
               >
                 {loading ? 'Đang xử lý...' : 'Đặt hàng'}
               </button>
               
-              <Link to="/products" className="btn btn-outline-secondary w-100">
+              <Link to="/products" className="btn btn-outline-success w-100">
                 Tiếp tục mua sắm
               </Link>
             </div>

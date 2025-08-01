@@ -149,7 +149,7 @@ const AdminCategories = () => {
                     <tr key={category.id}>
                       <td>{category.id}</td>
                       <td>{category.name}</td>
-                      <td>{category.description}</td>
+                      <td style={{width: '550px'}}>{category.description}</td>
                       <td>
                         <img 
                           src={category.image || 'https://via.placeholder.com/50x50'} 
