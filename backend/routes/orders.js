@@ -4,22 +4,26 @@ const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 // Get user orders
-router.get('/user', verifyToken, (req, res) => {
-  const query = `
-    SELECT o.*, 
-           GROUP_CONCAT(CONCAT(p.name, ' (x', oi.quantity, ')') SEPARATOR ', ') as items
-    FROM orders o
-    LEFT JOIN order_items oi ON o.id = oi.order_id
-    LEFT JOIN products p ON oi.product_id = p.id
-    WHERE o.user_id = ?
-    GROUP BY o.id
-    ORDER BY o.created_at DESC
-  `;
+router.get('/user/:userId', verifyToken, (req, res) => {
+  const userId = parseInt(req.params.userId);
   
-  db.query(query, [req.user.id], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Database error' });
-    res.json(results);
-  });
+  // Check if user can access these orders
+  if (req.user.id !== userId && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
+  db.query(
+    `SELECT o.*, u.name as user_name, u.email as user_email 
+     FROM orders o 
+     LEFT JOIN users u ON o.user_id = u.id 
+     WHERE o.user_id = ? 
+     ORDER BY o.created_at DESC`,
+    [userId],
+    (err, results) => {
+      if (err) return res.status(500).json({ message: 'Database error' });
+      res.json(results);
+    }
+  );
 });
 
 // Get all orders (Admin only)

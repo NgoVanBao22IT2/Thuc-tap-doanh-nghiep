@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import Modal from '../../components/Modal';
+import { useModal } from '../../hooks/useModal';
 import axios from 'axios';
 
 const AdminProducts = () => {
@@ -25,6 +27,8 @@ const AdminProducts = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const itemsPerPage = 10;
+
+  const { modal, hideModal, showSuccess, showError, showConfirm } = useModal();
 
   useEffect(() => {
     fetchProducts();
@@ -83,7 +87,7 @@ const AdminProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validate required fields before sending
+    
     if (
       !formData.name ||
       !formData.price ||
@@ -91,7 +95,7 @@ const AdminProducts = () => {
       !formData.category_id ||
       !formData.sku
     ) {
-      alert('Vui lòng nhập đầy đủ các trường bắt buộc!');
+      showError('Vui lòng nhập đầy đủ các trường bắt buộc!');
       return;
     }
     try {
@@ -109,10 +113,10 @@ const AdminProducts = () => {
 
       if (editingProduct) {
         await axios.put(`/api/products/${editingProduct.id}`, dataToSend);
-        alert('Cập nhật sản phẩm thành công!');
+        showSuccess('Cập nhật sản phẩm thành công!');
       } else {
         await axios.post('/api/products', dataToSend);
-        alert('Thêm sản phẩm thành công!');
+        showSuccess('Thêm sản phẩm thành công!');
       }
       
       setShowModal(false);
@@ -121,7 +125,7 @@ const AdminProducts = () => {
       fetchProducts();
     } catch (error) {
       console.error('Error saving product:', error);
-      alert(error.response?.data?.message || 'Có lỗi xảy ra!');
+      showError(error.response?.data?.message || 'Có lỗi xảy ra!');
     }
   };
 
@@ -144,19 +148,23 @@ const AdminProducts = () => {
 
   const handleDelete = async (id) => {
     if (!id || isNaN(Number(id))) {
-      alert('ID sản phẩm không hợp lệ!');
+      showError('ID sản phẩm không hợp lệ!');
       return;
     }
-    if (window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
-      try {
-        await axios.delete(`/api/products/${id}`);
-        alert('Xóa sản phẩm thành công!');
-        fetchProducts();
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        alert(error.response?.data?.message || 'Có lỗi xảy ra!');
+    
+    showConfirm(
+      'Bạn có chắc muốn xóa sản phẩm này?',
+      async () => {
+        try {
+          await axios.delete(`/api/products/${id}`);
+          showSuccess('Xóa sản phẩm thành công!');
+          fetchProducts();
+        } catch (error) {
+          console.error('Error deleting product:', error);
+          showError(error.response?.data?.message || 'Có lỗi xảy ra!');
+        }
       }
-    }
+    );
   };
 
   const resetForm = () => {
@@ -181,295 +189,308 @@ const AdminProducts = () => {
   };
 
   return (
-    <AdminLayout>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>📦 Quản lý sản phẩm</h2>
-        <button 
-          className="btn btn-admin-primary"
-          onClick={() => setShowModal(true)}
-        >
-          ➕ Thêm sản phẩm
-        </button>
-      </div>
-
-      {/* Search and Filter */}
-      <div className="row mb-3">
-        <div className="col-md-6">
-          <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Tìm kiếm theo tên hoặc SKU..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button 
-              className="btn btn-outline-secondary" 
-              type="button"
-              onClick={() => setSearchTerm('')}
-            >
-              Xóa
-            </button>
-          </div>
+    <>
+      <AdminLayout>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2>📦 Quản lý sản phẩm</h2>
+          <button 
+            className="btn btn-admin-primary"
+            onClick={() => setShowModal(true)}
+          >
+            ➕ Thêm sản phẩm
+          </button>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      ) : (
-        <div className="admin-table">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Hình ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Danh mục</th>
-                <th>Giá</th>
-                <th>Tồn kho</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(product => (
-                <tr key={product.id}>
-                  <td>{product.id}</td>
-                  <td>
-                    <img 
-                      src={product.image_url || 'https://via.placeholder.com/50x50'} 
-                      alt={product.name}
-                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                      className="rounded"
-                    />
-                  </td>
-                  <td>{product.name}</td>
-                  <td>{product.category_name}</td>
-                  <td>
-                    {new Intl.NumberFormat('vi-VN', { 
-                      style: 'currency', 
-                      currency: 'VND' 
-                    }).format(product.price)}
-                  </td>
-                  <td>{product.stock_quantity}</td>
-                  <td>
-                    <button 
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={() => handleEdit(product)}
-                    >
-                      Sửa
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDelete(product.id)}
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <nav aria-label="Product pagination" className="mt-4">
-          <ul className="pagination justify-content-center">
-            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+        {/* Search and Filter */}
+        <div className="row mb-3">
+          <div className="col-md-6">
+            <div className="input-group">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Tìm kiếm theo tên hoặc SKU..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
               <button 
-                className="page-link" 
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
+                className="btn btn-outline-secondary" 
+                type="button"
+                onClick={() => setSearchTerm('')}
               >
-                Trước
+                Xóa
               </button>
-            </li>
-            
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+            </div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : (
+          <div className="admin-table">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Hình ảnh</th>
+                  <th>Tên sản phẩm</th>
+                  <th>Danh mục</th>
+                  <th>Giá</th>
+                  <th>Tồn kho</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map(product => (
+                  <tr key={product.id}>
+                    <td>{product.id}</td>
+                    <td>
+                      <img 
+                        src={product.image_url || 'https://via.placeholder.com/50x50'} 
+                        alt={product.name}
+                        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                        className="rounded"
+                      />
+                    </td>
+                    <td>{product.name}</td>
+                    <td>{product.category_name}</td>
+                    <td>
+                      {new Intl.NumberFormat('vi-VN', { 
+                        style: 'currency', 
+                        currency: 'VND' 
+                      }).format(product.price)}
+                    </td>
+                    <td>{product.stock_quantity}</td>
+                    <td>
+                      <button 
+                        className="btn btn-sm btn-outline-primary me-2"
+                        onClick={() => handleEdit(product)}
+                      >
+                        Sửa
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleDelete(product.id)}
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <nav aria-label="Product pagination" className="mt-4">
+            <ul className="pagination justify-content-center">
+              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                 <button 
                   className="page-link" 
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
                 >
-                  {page}
+                  Trước
                 </button>
               </li>
-            ))}
-            
-            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-              <button 
-                className="page-link" 
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                Sau
-              </button>
-            </li>
-          </ul>
-        </nav>
-      )}
-
-      {/* Modal with admin styling */}
-      {showModal && (
-        <div className="modal show d-block admin-modal" tabIndex="-1">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
-                </h5>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                  <button 
+                    className="page-link" 
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                </li>
+              ))}
+              
+              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                 <button 
-                  type="button" 
-                  className="btn-close" 
-                  onClick={handleModalClose}
-                ></button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Tên sản phẩm:</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">Mô tả:</label>
-                    <textarea
-                      className="form-control"
-                      rows="3"
-                      value={formData.description}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Giá:</label>
+                  className="page-link" 
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Sau
+                </button>
+              </li>
+            </ul>
+          </nav>
+        )}
+
+        {/* Modal with admin styling */}
+        {showModal && (
+          <div className="modal show d-block admin-modal" tabIndex="-1">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    {editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
+                  </h5>
+                  <button 
+                    type="button" 
+                    className="btn-close" 
+                    onClick={handleModalClose}
+                  ></button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="modal-body">
+                    <div className="mb-3">
+                      <label className="form-label">Tên sản phẩm:</label>
                       <input
-                        type="number"
+                        type="text"
                         className="form-control"
-                        value={formData.price}
-                        onChange={(e) => setFormData({...formData, price: e.target.value})}
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
                         required
                       />
                     </div>
                     
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Tồn kho:</label>
-                      <input
-                        type="number"
+                    <div className="mb-3">
+                      <label className="form-label">Mô tả:</label>
+                      <textarea
                         className="form-control"
-                        value={formData.stock_quantity}
-                        onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
+                        rows="3"
+                        value={formData.description}
+                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Giá:</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          value={formData.price}
+                          onChange={(e) => setFormData({...formData, price: e.target.value})}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Tồn kho:</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          value={formData.stock_quantity}
+                          onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Danh mục:</label>
+                      <select
+                        className="form-select"
+                        value={formData.category_id}
+                        onChange={(e) => setFormData({...formData, category_id: e.target.value})}
                         required
+                      >
+                        <option value="">Chọn danh mục</option>
+                        {categories.map(category => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Thương hiệu:</label>
+                      <select
+                        className="form-select"
+                        value={formData.brand_id}
+                        onChange={(e) => setFormData({...formData, brand_id: e.target.value})}
+                      >
+                        <option value="">Chọn thương hiệu</option>
+                        {brands.map(brand => (
+                          <option key={brand.id} value={brand.id}>
+                            {brand.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">SKU:</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.sku}
+                        onChange={(e) => setFormData({...formData, sku: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Slug:</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.slug}
+                        onChange={(e) => setFormData({...formData, slug: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Trạng thái:</label>
+                      <select
+                        className="form-select"
+                        value={formData.status}
+                        onChange={(e) => setFormData({...formData, status: e.target.value})}
+                      >
+                        <option value="active">Kích hoạt</option>
+                        <option value="inactive">Không kích hoạt</option>
+                      </select>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">URL hình ảnh:</label>
+                      <input
+                        type="url"
+                        className="form-control"
+                        value={formData.image_url}
+                        onChange={(e) => setFormData({...formData, image_url: e.target.value})}
                       />
                     </div>
                   </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">Danh mục:</label>
-                    <select
-                      className="form-select"
-                      value={formData.category_id}
-                      onChange={(e) => setFormData({...formData, category_id: e.target.value})}
-                      required
+                  <div className="modal-footer">
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      onClick={handleModalClose}
                     >
-                      <option value="">Chọn danh mục</option>
-                      {categories.map(category => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
+                      Hủy
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      {editingProduct ? 'Cập nhật' : 'Thêm'}
+                    </button>
                   </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">Thương hiệu:</label>
-                    <select
-                      className="form-select"
-                      value={formData.brand_id}
-                      onChange={(e) => setFormData({...formData, brand_id: e.target.value})}
-                    >
-                      <option value="">Chọn thương hiệu</option>
-                      {brands.map(brand => (
-                        <option key={brand.id} value={brand.id}>
-                          {brand.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">SKU:</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={formData.sku}
-                      onChange={(e) => setFormData({...formData, sku: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">Slug:</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={formData.slug}
-                      onChange={(e) => setFormData({...formData, slug: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">Trạng thái:</label>
-                    <select
-                      className="form-select"
-                      value={formData.status}
-                      onChange={(e) => setFormData({...formData, status: e.target.value})}
-                    >
-                      <option value="active">Kích hoạt</option>
-                      <option value="inactive">Không kích hoạt</option>
-                    </select>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">URL hình ảnh:</label>
-                    <input
-                      type="url"
-                      className="form-control"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
-                    onClick={handleModalClose}
-                  >
-                    Hủy
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    {editingProduct ? 'Cập nhật' : 'Thêm'}
-                  </button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {showModal && <div className="modal-backdrop show"></div>}
-    </AdminLayout>
+        )}
+      </AdminLayout>
+      
+      <Modal
+        show={modal.show}
+        onClose={hideModal}
+        title={modal.title}
+        message={modal.message}
+        type={modal.type}
+        onConfirm={modal.onConfirm}
+        confirmText={modal.confirmText}
+        cancelText={modal.cancelText}
+        showCancel={modal.showCancel}
+      />
+    </>
   );
 };
 

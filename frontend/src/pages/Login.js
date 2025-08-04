@@ -86,15 +86,15 @@ const Login = () => {
                 
                 <button 
                   type="submit" 
-                  className="btn btn-primary w-100"
+                  className="btn btn-success w-100"
                   disabled={loading}
                 >
                   {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                 </button>
               </form>
               
-              <div className="text-center mt-3">
-                <p>Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link></p>
+              <div className="text-center  mt-3">
+                <p>Chưa có tài khoản? <Link to="/register" style={{ color:'#00a61eff'}}>Đăng ký ngay</Link></p>
               </div>
             </div>
           </div>

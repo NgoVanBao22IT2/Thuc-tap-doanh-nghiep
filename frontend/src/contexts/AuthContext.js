@@ -55,11 +55,21 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
+  const updateUser = (userData) => {
+    setCurrentUser(userData);
+    // Cập nhật localStorage nếu cần
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    }
+  };
+
   const value = {
     currentUser,
     login,
     register,
-    logout
+    logout,
+    updateUser,
+    loading
   };
 
   return (

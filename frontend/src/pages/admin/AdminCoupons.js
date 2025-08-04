@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import Modal from '../../components/Modal';
+import { useModal } from '../../hooks/useModal';
 import axios from 'axios';
 
 const AdminCoupons = () => {
@@ -25,6 +27,7 @@ const AdminCoupons = () => {
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
+  const { modal, hideModal, showSuccess, showError, showConfirm } = useModal();
 
   useEffect(() => {
     fetchCoupons();
@@ -51,7 +54,7 @@ const AdminCoupons = () => {
     
     // Validation
     if (!formData.code || !formData.name || !formData.value || !formData.valid_from || !formData.valid_to) {
-      alert('Vui lòng nhập đầy đủ các trường bắt buộc!');
+      showError('Vui lòng nhập đầy đủ các trường bắt buộc!');
       return;
     }
 
@@ -59,7 +62,7 @@ const AdminCoupons = () => {
     const validFrom = new Date(formData.valid_from);
     const validTo = new Date(formData.valid_to);
     if (validFrom >= validTo) {
-      alert('Ngày bắt đầu phải nhỏ hơn ngày kết thúc!');
+      showError('Ngày bắt đầu phải nhỏ hơn ngày kết thúc!');
       return;
     }
 
@@ -77,10 +80,10 @@ const AdminCoupons = () => {
 
       if (editingCoupon) {
         await axios.put(`/api/coupons/${editingCoupon.id}`, dataToSubmit);
-        alert('Cập nhật mã giảm giá thành công!');
+        showSuccess('Cập nhật mã giảm giá thành công!');
       } else {
         await axios.post('/api/coupons', dataToSubmit);
-        alert('Thêm mã giảm giá thành công!');
+        showSuccess('Thêm mã giảm giá thành công!');
       }
       
       setShowModal(false);
@@ -89,7 +92,7 @@ const AdminCoupons = () => {
       fetchCoupons();
     } catch (error) {
       console.error('Error saving coupon:', error);
-      alert(error.response?.data?.message || 'Có lỗi xảy ra!');
+      showError(error.response?.data?.message || 'Có lỗi xảy ra!');
     }
   };
 
@@ -136,291 +139,312 @@ const AdminCoupons = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa mã giảm giá này?')) {
-      try {
-        await axios.delete(`/api/coupons/${id}`);
-        alert('Xóa mã giảm giá thành công!');
-        fetchCoupons();
-      } catch (error) {
-        console.error('Error deleting coupon:', error);
-        alert(error.response?.data?.message || 'Có lỗi xảy ra!');
+    showConfirm(
+      'Bạn có chắc muốn xóa mã giảm giá này?',
+      async () => {
+        try {
+          await axios.delete(`/api/coupons/${id}`);
+          showSuccess('Xóa mã giảm giá thành công!');
+          fetchCoupons();
+        } catch (error) {
+          console.error('Error deleting coupon:', error);
+          showError(error.response?.data?.message || 'Có lỗi xảy ra!');
+        }
       }
-    }
+    );
   };
 
   const handleAssignCoupon = async () => {
-    await axios.post('/api/coupons/assign', { coupon_id: selectedCoupon.id, user_id: selectedUserId });
-    alert('Gán mã cho user thành công!');
-    setShowAssignModal(false);
+    try {
+      await axios.post('/api/coupons/assign', { coupon_id: selectedCoupon.id, user_id: selectedUserId });
+      showSuccess('Gán mã cho user thành công!');
+      setShowAssignModal(false);
+    } catch (error) {
+      showError('Có lỗi xảy ra khi gán mã!');
+    }
   };
 
   return (
-    <AdminLayout>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>🎫 Quản lý mã giảm giá</h2>
-        <button 
-          className="btn btn-admin-primary"
-          onClick={() => setShowModal(true)}
-        >
-          ➕ Thêm mã giảm giá
-        </button>
-      </div>
+    <>
+      <AdminLayout>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2>🎫 Quản lý mã giảm giá</h2>
+          <button 
+            className="btn btn-admin-primary"
+            onClick={() => setShowModal(true)}
+          >
+            ➕ Thêm mã giảm giá
+          </button>
+        </div>
 
-      {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="admin-table">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Mã</th>
-                <th>Tên</th>
-                <th>Loại</th>
-                <th>Giá trị</th>
-                <th>Đã dùng</th>
-                <th>Hạn sử dụng</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map(coupon => (
-                <tr key={coupon.id}>
-                  <td>
-                    <code className="bg-primary text-white px-2 py-1 rounded">
-                      {coupon.code}
-                    </code>
-                  </td>
-                  <td>{coupon.name}</td>
-                  <td>
-                    <span className={`badge ${coupon.type === 'percentage' ? 'bg-success' : 'bg-info'}`}>
-                      {coupon.type === 'percentage' ? 'Phần trăm' : 'Cố định'}
-                    </span>
-                  </td>
-                  <td>
-                    {coupon.type === 'percentage' 
-                      ? `${coupon.value}%` 
-                      : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(coupon.value)
-                    }
-                  </td>
-                  <td>{coupon.used_count}/{coupon.usage_limit || '∞'}</td>
-                  <td>
-                    <small>
-                      {new Date(coupon.valid_from).toLocaleDateString('vi-VN')} - {' '}
-                      {new Date(coupon.valid_to).toLocaleDateString('vi-VN')}
-                    </small>
-                  </td>
-                  <td>
-                    <span className={`badge ${coupon.status === 'active' ? 'bg-success' : 'bg-secondary'}`}>
-                      {coupon.status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={() => handleEdit(coupon)}
-                    >
-                      Sửa
-                    </button>
-                    <button 
-                      className="btn btn-sm btn-outline-danger me-2"
-                      onClick={() => handleDelete(coupon.id)}
-                    >
-                      Xóa
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-success"
-                      onClick={() => {
-                        setSelectedCoupon(coupon);
-                        fetchUsers();
-                        setShowAssignModal(true);
-                      }}
-                    >
-                      Áp dụng
-                    </button>
-                  </td>
+        ) : (
+          <div className="admin-table">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Mã</th>
+                  <th>Tên</th>
+                  <th>Loại</th>
+                  <th>Giá trị</th>
+                  <th>Đã dùng</th>
+                  <th>Hạn sử dụng</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Modal */}
-      {showModal && (
-        <div className="modal show d-block admin-modal" tabIndex="-1">
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {editingCoupon ? 'Sửa mã giảm giá' : 'Thêm mã giảm giá'}
-                </h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
-                  onClick={handleModalClose}
-                ></button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Mã giảm giá:</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={formData.code}
-                        onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
-                        placeholder="VD: WELCOME10"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Tên mã:</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="form-label">Mô tả:</label>
-                    <textarea
-                      className="form-control"
-                      rows="2"
-                      value={formData.description}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Loại giảm giá:</label>
-                      <select
-                        className="form-select"
-                        value={formData.type}
-                        onChange={(e) => setFormData({...formData, type: e.target.value})}
+              </thead>
+              <tbody>
+                {coupons.map(coupon => (
+                  <tr key={coupon.id}>
+                    <td>
+                      <code className="bg-primary text-white px-2 py-1 rounded">
+                        {coupon.code}
+                      </code>
+                    </td>
+                    <td>{coupon.name}</td>
+                    <td>
+                      <span className={`badge ${coupon.type === 'percentage' ? 'bg-success' : 'bg-info'}`}>
+                        {coupon.type === 'percentage' ? 'Phần trăm' : 'Cố định'}
+                      </span>
+                    </td>
+                    <td>
+                      {coupon.type === 'percentage' 
+                        ? `${coupon.value}%` 
+                        : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(coupon.value)
+                      }
+                    </td>
+                    <td>{coupon.used_count}/{coupon.usage_limit || '∞'}</td>
+                    <td>
+                      <small>
+                        {new Date(coupon.valid_from).toLocaleDateString('vi-VN')} - {' '}
+                        {new Date(coupon.valid_to).toLocaleDateString('vi-VN')}
+                      </small>
+                    </td>
+                    <td>
+                      <span className={`badge ${coupon.status === 'active' ? 'bg-success' : 'bg-secondary'}`}>
+                        {coupon.status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        className="btn btn-sm btn-outline-primary me-2"
+                        onClick={() => handleEdit(coupon)}
                       >
-                        <option value="percentage">Phần trăm (%)</option>
-                        <option value="fixed">Cố định (VND)</option>
-                      </select>
-                    </div>
-                    
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Giá trị:</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={formData.value}
-                        onChange={(e) => setFormData({...formData, value: e.target.value})}
-                        placeholder={formData.type === 'percentage' ? '10' : '50000'}
-                        required
-                      />
-                    </div>
-                  </div>
+                        Sửa
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline-danger me-2"
+                        onClick={() => handleDelete(coupon.id)}
+                      >
+                        Xóa
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-success"
+                        onClick={() => {
+                          setSelectedCoupon(coupon);
+                          fetchUsers();
+                          setShowAssignModal(true);
+                        }}
+                      >
+                        Áp dụng
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Đơn hàng tối thiểu:</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={formData.minimum_amount}
-                        onChange={(e) => setFormData({...formData, minimum_amount: e.target.value})}
-                        placeholder="0"
-                      />
-                    </div>
-                    
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Giảm tối đa (nếu %):</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={formData.maximum_discount}
-                        onChange={(e) => setFormData({...formData, maximum_discount: e.target.value})}
-                        placeholder="Để trống nếu không giới hạn"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Từ ngày:</label>
-                      <input
-                        type="datetime-local"
-                        className="form-control"
-                        value={formData.valid_from}
-                        onChange={(e) => setFormData({...formData, valid_from: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Đến ngày:</label>
-                      <input
-                        type="datetime-local"
-                        className="form-control"
-                        value={formData.valid_to}
-                        onChange={(e) => setFormData({...formData, valid_to: e.target.value})}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
+        {/* Modal thêm/sửa */}
+        {showModal && (
+          <div className="modal show d-block admin-modal" tabIndex="-1">
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    {editingCoupon ? 'Sửa mã giảm giá' : 'Thêm mã giảm giá'}
+                  </h5>
                   <button 
                     type="button" 
-                    className="btn btn-secondary" 
+                    className="btn-close" 
                     onClick={handleModalClose}
-                  >
-                    Hủy
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    {editingCoupon ? 'Cập nhật' : 'Thêm'}
-                  </button>
+                  ></button>
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-      {showModal && <div className="modal-backdrop show"></div>}
+                <form onSubmit={handleSubmit}>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Mã giảm giá:</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={formData.code}
+                          onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
+                          placeholder="VD: WELCOME10"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Tên mã:</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={formData.name}
+                          onChange={(e) => setFormData({...formData, name: e.target.value})}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Mô tả:</label>
+                      <textarea
+                        className="form-control"
+                        rows="2"
+                        value={formData.description}
+                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Loại giảm giá:</label>
+                        <select
+                          className="form-select"
+                          value={formData.type}
+                          onChange={(e) => setFormData({...formData, type: e.target.value})}
+                        >
+                          <option value="percentage">Phần trăm (%)</option>
+                          <option value="fixed">Cố định (VND)</option>
+                        </select>
+                      </div>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Giá trị:</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          value={formData.value}
+                          onChange={(e) => setFormData({...formData, value: e.target.value})}
+                          placeholder={formData.type === 'percentage' ? '10' : '50000'}
+                          required
+                        />
+                      </div>
+                    </div>
 
-      {/* Modal gán mã cho user */}
-      {showAssignModal && (
-        <div className="modal show d-block">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Gán mã cho người dùng</h5>
-                <button type="button" className="btn-close" onClick={() => setShowAssignModal(false)}></button>
-              </div>
-              <div className="modal-body">
-                <select className="form-select" value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}>
-                  <option value="">Chọn người dùng</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
-                  ))}
-                </select>
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-success" onClick={handleAssignCoupon}>Áp dụng</button>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Đơn hàng tối thiểu:</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          value={formData.minimum_amount}
+                          onChange={(e) => setFormData({...formData, minimum_amount: e.target.value})}
+                          placeholder="0"
+                        />
+                      </div>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Giảm tối đa (nếu %):</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          value={formData.maximum_discount}
+                          onChange={(e) => setFormData({...formData, maximum_discount: e.target.value})}
+                          placeholder="Để trống nếu không giới hạn"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Từ ngày:</label>
+                        <input
+                          type="datetime-local"
+                          className="form-control"
+                          value={formData.valid_from}
+                          onChange={(e) => setFormData({...formData, valid_from: e.target.value})}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Đến ngày:</label>
+                        <input
+                          type="datetime-local"
+                          className="form-control"
+                          value={formData.valid_to}
+                          onChange={(e) => setFormData({...formData, valid_to: e.target.value})}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer">
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      onClick={handleModalClose}
+                    >
+                      Hủy
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      {editingCoupon ? 'Cập nhật' : 'Thêm'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
-        </div>
-      )}
-      {showAssignModal && <div className="modal-backdrop show"></div>}
-    </AdminLayout>
+        )}
+        {showModal && <div className="modal-backdrop show"></div>}
+
+        {/* Modal gán mã cho user */}
+        {showAssignModal && (
+          <div className="modal show d-block" tabIndex="-1">
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Gán mã cho người dùng</h5>
+                  <button type="button" className="btn-close" onClick={() => setShowAssignModal(false)}></button>
+                </div>
+                <div className="modal-body">
+                  <select className="form-select" value={selectedUserId} onChange={e => setSelectedUserId(e.target.value)}>
+                    <option value="">Chọn người dùng</option>
+                    {users.map(u => (
+                      <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-success" onClick={handleAssignCoupon}>Áp dụng</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {showAssignModal && <div className="modal-backdrop show"></div>}
+      </AdminLayout>
+      
+      <Modal
+        show={modal.show}
+        onClose={hideModal}
+        title={modal.title}
+        message={modal.message}
+        type={modal.type}
+        onConfirm={modal.onConfirm}
+        confirmText={modal.confirmText}
+        cancelText={modal.cancelText}
+        showCancel={modal.showCancel}
+      />
+    </>
   );
 };
 

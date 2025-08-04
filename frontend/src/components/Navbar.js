@@ -104,6 +104,7 @@ const Navbar = () => {
                       /* Menu User */
                       <>
                         <li><Link className="dropdown-item" to="/profile">Hồ sơ</Link></li>
+                        <li><Link className="dropdown-item" to="/orders">Đơn hàng</Link></li>
                         {isAdmin && (
                           <li><Link className="dropdown-item" to="/admin">Quản trị</Link></li>
                         )}

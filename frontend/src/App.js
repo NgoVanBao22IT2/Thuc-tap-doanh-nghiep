@@ -25,6 +25,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Categories from './pages/Categories';
 import Contact from './pages/Contact';
 import OrdersHistory from './pages/OrdersHistory';
+import Orders from './pages/Orders';
 
 function AppContent() {
   const location = useLocation();
@@ -44,6 +45,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/orders" element={<Orders />} />
           
           {/* User Protected Routes */}
           <Route path="/profile" element={
