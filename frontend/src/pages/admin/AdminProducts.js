@@ -299,16 +299,111 @@ const AdminProducts = () => {
                 </button>
               </li>
               
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </button>
-                </li>
-              ))}
+              {(() => {
+                const pages = [];
+                const maxVisible = 3;
+                
+                if (totalPages <= maxVisible) {
+                  // Nếu tổng số trang <= 3, hiển thị tất cả
+                  for (let i = 1; i <= totalPages; i++) {
+                    pages.push(
+                      <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
+                        <button className="page-link" onClick={() => setCurrentPage(i)}>
+                          {i}
+                        </button>
+                      </li>
+                    );
+                  }
+                } else {
+                  // Logic phức tạp hơn cho nhiều trang
+                  if (currentPage <= 3) {
+                    // Hiển thị 1,2,3
+                    for (let i = 1; i <= 3; i++) {
+                      pages.push(
+                        <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
+                          <button className="page-link" onClick={() => setCurrentPage(i)}>
+                            {i}
+                          </button>
+                        </li>
+                      );
+                    }
+                    if (totalPages > 3) {
+                      pages.push(
+                        <li key="ellipsis-end" className="page-item disabled">
+                          <span className="page-link">...</span>
+                        </li>
+                      );
+                      pages.push(
+                        <li key={totalPages} className="page-item">
+                          <button className="page-link" onClick={() => setCurrentPage(totalPages)}>
+                            {totalPages}
+                          </button>
+                        </li>
+                      );
+                    }
+                  } else if (currentPage >= totalPages - 2) {
+                    // Hiển thị trang đầu, ..., và 5 trang cuối
+                    pages.push(
+                      <li key={1} className="page-item">
+                        <button className="page-link" onClick={() => setCurrentPage(1)}>
+                          1
+                        </button>
+                      </li>
+                    );
+                    pages.push(
+                      <li key="ellipsis-start" className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    );
+                    for (let i = totalPages - 4; i <= totalPages; i++) {
+                      pages.push(
+                        <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
+                          <button className="page-link" onClick={() => setCurrentPage(i)}>
+                            {i}
+                          </button>
+                        </li>
+                      );
+                    }
+                  } else {
+                    // Hiển thị trang đầu, ..., current-1, current, current+1, ..., trang cuối
+                    pages.push(
+                      <li key={1} className="page-item">
+                        <button className="page-link" onClick={() => setCurrentPage(1)}>
+                          1
+                        </button>
+                      </li>
+                    );
+                    pages.push(
+                      <li key="ellipsis-start" className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    );
+                    for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                      pages.push(
+                        <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
+                          <button className="page-link" onClick={() => setCurrentPage(i)}>
+                            {i}
+                          </button>
+                        </li>
+                      );
+                    }
+                    pages.push(
+                      <li key="ellipsis-end" className="page-item disabled">
+                        <span className="page-link">...</span>
+                      </li>
+                    );
+                    pages.push(
+                      <li key={totalPages} className="page-item">
+                        <button className="page-link" onClick={() => setCurrentPage(totalPages)}>
+                          {totalPages}
+                        </button>
+                      </li>
+                    );
+                  }
+                }
+                
+                return pages;
+              })()}
               
               <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                 <button 

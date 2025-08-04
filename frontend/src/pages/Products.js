@@ -182,6 +182,141 @@ const Products = () => {
     if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
   };
 
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+    const maxVisible = 3;
+
+    // Nút Previous
+    pages.push(
+      <li key="prev" className={`page-item ${page === 1 ? 'disabled' : ''}`}>
+        <button
+          className="page-link"
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+        >
+          Trước
+        </button>
+      </li>
+    );
+
+    if (totalPages <= maxVisible) {
+      // Hiển thị tất cả trang nếu <= 3
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(
+          <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
+            <button className="page-link" onClick={() => handlePageChange(i)}>
+              {i}
+            </button>
+          </li>
+        );
+      }
+    } else {
+      // Logic phức tạp cho nhiều trang
+      if (page <= 3) {
+        for (let i = 1; i <= 3; i++) {
+          pages.push(
+            <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
+              <button className="page-link" onClick={() => handlePageChange(i)}>
+                {i}
+              </button>
+            </li>
+          );
+        }
+        pages.push(
+          <li key="ellipsis-end" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        pages.push(
+          <li key={totalPages} className="page-item">
+            <button className="page-link" onClick={() => handlePageChange(totalPages)}>
+              {totalPages}
+            </button>
+          </li>
+        );
+      } else if (page >= totalPages - 2) {
+        pages.push(
+          <li key={1} className="page-item">
+            <button className="page-link" onClick={() => handlePageChange(1)}>
+              1
+            </button>
+          </li>
+        );
+        pages.push(
+          <li key="ellipsis-start" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(
+            <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
+              <button className="page-link" onClick={() => handlePageChange(i)}>
+                {i}
+              </button>
+            </li>
+          );
+        }
+      } else {
+        pages.push(
+          <li key={1} className="page-item">
+            <button className="page-link" onClick={() => handlePageChange(1)}>
+              1
+            </button>
+          </li>
+        );
+        pages.push(
+          <li key="ellipsis-start" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        for (let i = page - 1; i <= page + 1; i++) {
+          pages.push(
+            <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
+              <button className="page-link" onClick={() => handlePageChange(i)}>
+                {i}
+              </button>
+            </li>
+          );
+        }
+        pages.push(
+          <li key="ellipsis-end" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        pages.push(
+          <li key={totalPages} className="page-item">
+            <button className="page-link" onClick={() => handlePageChange(totalPages)}>
+              {totalPages}
+            </button>
+          </li>
+        );
+      }
+    }
+
+    // Nút Next
+    pages.push(
+      <li key="next" className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
+        <button
+          className="page-link"
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages}
+        >
+          Sau
+        </button>
+      </li>
+    );
+
+    return (
+      <nav aria-label="Product pagination" className="mt-4">
+        <ul className="pagination justify-content-center">
+          {pages}
+        </ul>
+      </nav>
+    );
+  };
+
   return (
     <div className="container my-5">
       {/* Breadcrumb */}
