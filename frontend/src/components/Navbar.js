@@ -52,6 +52,9 @@ const Navbar = () => {
               <li className="nav-item">
                 <Link className="nav-link" to="/admin/categories">Danh mục</Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin/reviews">Đánh giá</Link>
+              </li>
             </ul>
           ) : (
             /* Menu cho User */

@@ -16,15 +16,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/products', require('./routes/products'));
-app.use('/api/orders', require('./routes/orders'));
-app.use('/api/categories', require('./routes/categories'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/products', require('./routes/products'));
+app.use('/api/categories', require('./routes/categories'));
 app.use('/api/brands', require('./routes/brands'));
+app.use('/api/orders', require('./routes/orders'));
 app.use('/api/coupons', require('./routes/coupons'));
-app.use('/api/contacts', require('./routes/contacts'));
-app.use('/api/settings', require('./routes/settings'));
 app.use('/api/slides', require('./routes/slides'));
+app.use('/api/settings', require('./routes/settings'));
+//app.use('/api/upload', require('./routes/upload')); 
+app.use('/api/sizes', require('./routes/sizes')); 
+app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/contacts', require('./routes/contacts'));
 
 // Health check
 app.get('/api/health', (req, res) => {

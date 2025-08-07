@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import Modal from '../components/Modal';
 import { useModal } from '../hooks/useModal';
+import ReviewForm from '../components/ReviewForm';
+import ReviewList from '../components/ReviewList';
 import axios from 'axios';
 
 const ProductDetail = () => {
@@ -13,6 +15,8 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [activeTab, setActiveTab] = useState('description');
+  const [reviewRefresh, setReviewRefresh] = useState(0);
 
   useEffect(() => {
     fetchProduct();
@@ -40,6 +44,10 @@ const ProductDetail = () => {
       });
       showSuccess('Đã thêm sản phẩm vào giỏ hàng!');
     }
+  };
+
+  const handleReviewSubmitted = () => {
+    setReviewRefresh(prev => prev + 1);
   };
 
   if (loading) {
@@ -260,26 +268,71 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
-        {/* Product Description */}
-        {product.description && (
-          <div className="row mt-5">
-            <div className="col-12">
-              <div className="card">
-                <div className="card-header">
-                  <h5 className="mb-0 text-success">
-                    <i className="bi bi-file-text me-2"></i>
-                    Mô tả sản phẩm
-                  </h5>
+        {/* Product Description and Reviews Tabs */}
+        <div className="row mt-5">
+          <div className="col-12">
+            <ul className="nav nav-tabs" id="productTabs">
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeTab === 'description' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('description')}
+                >
+                  <i className="bi bi-file-text me-2"></i>
+                  Mô tả sản phẩm
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeTab === 'reviews' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('reviews')}
+                >
+                  <i className="bi bi-star me-2"></i>
+                  Đánh giá & nhận xét
+                </button>
+              </li>
+            </ul>
+            
+            <div className="tab-content mt-4">
+              {activeTab === 'description' && (
+                <div className="tab-pane fade show active">
+                  {product.description ? (
+                    <div className="card">
+                      <div className="card-body">
+                        <div className="product-description" style={{whiteSpace: 'pre-line'}}>
+                          {product.description}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <i className="bi bi-file-text display-1 text-muted"></i>
+                      <h5 className="text-muted mt-3">Chưa có mô tả sản phẩm</h5>
+                    </div>
+                  )}
                 </div>
-                <div className="card-body">
-                  <div className="product-description" style={{whiteSpace: 'pre-line'}}>
-                    {product.description}
+              )}
+              
+              {activeTab === 'reviews' && (
+                <div className="tab-pane fade show active">
+                  <div className="row">
+                    <div className="col-lg-8">
+                      <ReviewList 
+                        productId={id} 
+                        refreshTrigger={reviewRefresh}
+                      />
+                    </div>
+                    <div className="col-lg-4">
+                      <ReviewForm 
+                        product={product}
+                        onReviewSubmitted={handleReviewSubmitted}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
       
       <Modal
@@ -296,7 +349,5 @@ const ProductDetail = () => {
     </>
   );
 };
-
-
 
 export default ProductDetail;

@@ -21,6 +21,7 @@ import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminContacts from './pages/admin/AdminContacts';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminSlides from './pages/admin/AdminSlides';
+import AdminReviews from './pages/admin/AdminReviews';
 import ProtectedRoute from './components/ProtectedRoute';
 import Categories from './pages/Categories';
 import Contact from './pages/Contact';
@@ -108,6 +109,11 @@ function AppContent() {
           <Route path="/admin/slides" element={
             <ProtectedRoute adminOnly>
               <AdminSlides />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/reviews" element={
+            <ProtectedRoute adminOnly>
+              <AdminReviews />
             </ProtectedRoute>
           } />
         </Routes>
