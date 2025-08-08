@@ -28,6 +28,8 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/sizes', require('./routes/sizes')); 
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/contacts', require('./routes/contacts'));
+app.use('/api/cart', require('./routes/cart'));
+
 
 // Health check
 app.get('/api/health', (req, res) => {

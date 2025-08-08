@@ -6,7 +6,7 @@ const router = express.Router();
 // Get reviews for a product
 router.get('/product/:productId', (req, res) => {
   const { productId } = req.params;
-  const { page = 1, limit = 10, sort = 'newest' } = req.query;
+  const { page = 1, limit = 10, sort = 'newest', status } = req.query;
   const offset = (page - 1) * limit;
 
   let orderBy = 'created_at DESC';
@@ -14,11 +14,22 @@ router.get('/product/:productId', (req, res) => {
   if (sort === 'highest') orderBy = 'rating DESC';
   if (sort === 'lowest') orderBy = 'rating ASC';
 
+  // Xác định điều kiện status
+  let statusCondition = '';
+  let statusParams = [];
+  if (status && status !== 'all') {
+    statusCondition = 'AND status = ?';
+    statusParams = [status];
+  } else if (!status || status === 'approved') {
+    statusCondition = 'AND status = ?';
+    statusParams = ['approved'];
+  }
+
   // Lấy danh sách review + tổng số review + thống kê rating
   const queryReviews = `
     SELECT * 
     FROM reviews 
-    WHERE product_id = ? AND status = 'approved'
+    WHERE product_id = ? ${statusCondition}
     ORDER BY ${orderBy}
     LIMIT ? OFFSET ?
   `;
@@ -33,13 +44,13 @@ router.get('/product/:productId', (req, res) => {
       SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) AS two_star,
       SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS one_star
     FROM reviews 
-    WHERE product_id = ? AND status = 'approved'
+    WHERE product_id = ? ${statusCondition}
   `;
 
-  db.query(queryReviews, [productId, parseInt(limit), offset], (err, reviews) => {
+  db.query(queryReviews, [productId, ...statusParams, parseInt(limit), offset], (err, reviews) => {
     if (err) return res.status(500).json({ message: 'Database error' });
 
-    db.query(queryCount, [productId], (err, stats) => {
+    db.query(queryCount, [productId, ...statusParams], (err, stats) => {
       if (err) return res.status(500).json({ message: 'Database error' });
 
       const total = stats[0].total_reviews || 0;
@@ -155,7 +166,7 @@ router.get('/admin', verifyToken, verifyAdmin, (req, res) => {
   }
   
   const query = `
-    SELECT r.*, u.name as user_name, p.name as product_name
+    SELECT r.*, r.comment AS content, u.name as user_name, p.name as product_name
     FROM reviews r
     LEFT JOIN users u ON r.user_id = u.id
     LEFT JOIN products p ON r.product_id = p.id
@@ -187,6 +198,27 @@ router.put('/:id/status', verifyToken, verifyAdmin, (req, res) => {
       if (err) return res.status(500).json({ message: 'Database error' });
       if (result.affectedRows === 0) return res.status(404).json({ message: 'Review not found' });
       res.json({ message: 'Cập nhật trạng thái thành công' });
+    }
+  );
+});
+
+// Admin reply to review
+router.put('/:id/reply', verifyToken, verifyAdmin, (req, res) => {
+  const { admin_reply } = req.body;
+  if (!admin_reply || !admin_reply.trim()) {
+    return res.status(400).json({ message: 'Nội dung phản hồi không được để trống' });
+  }
+  db.query(
+    'UPDATE reviews SET admin_reply = ? WHERE id = ?',
+    [admin_reply, req.params.id],
+    (err, result) => {
+      if (err) {
+        // Ghi log lỗi chi tiết để debug
+        console.error('Error updating admin_reply:', err);
+        return res.status(500).json({ message: 'Database error', error: err.message });
+      }
+      if (result.affectedRows === 0) return res.status(404).json({ message: 'Review not found' });
+      res.json({ message: 'Phản hồi thành công' });
     }
   );
 });

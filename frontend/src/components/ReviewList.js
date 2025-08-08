@@ -34,8 +34,8 @@ const ReviewList = ({ productId, refreshTrigger }) => {
     fetchReviews();
   }, [fetchReviews, refreshTrigger]);
 
-  // Lọc lại ở frontend nếu backend chưa lọc (chỉ giữ review đã duyệt)
-  const approvedReviews = reviews.filter(r => r.status === 'approved' || !r.status);
+  // Không cần lọc lại ở frontend nữa, API đã trả về đúng trạng thái
+  const approvedReviews = reviews;
 
   const handleHelpful = async (reviewId, isHelpful) => {
     if (!currentUser) {
@@ -180,6 +180,17 @@ const ReviewList = ({ productId, refreshTrigger }) => {
                 
                 <p className="mb-3">{review.content || review.comment}</p>
                 
+                {/* Hiển thị phản hồi admin nếu có */}
+                {review.admin_reply && (
+                  <div className="bg-light border rounded p-2 mb-2" style={{fontSize: '0.97em'}}>
+                    <div className="fw-bold text-success mb-1">
+                      <i className="bi bi-shield-check me-1"></i>
+                      Phản hồi từ BAOBAO:
+                    </div>
+                    <div style={{whiteSpace: 'pre-line'}}>{review.admin_reply}</div>
+                  </div>
+                )}
+
                 <div className="d-flex align-items-center justify-content-between">
                   <div className="d-flex gap-2">
                     <button 

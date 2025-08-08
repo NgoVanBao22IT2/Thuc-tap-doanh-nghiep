@@ -21,6 +21,7 @@ const Profile = () => {
     confirmPassword: ''
   });
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -91,9 +92,20 @@ const Profile = () => {
       }
 
       setAvatarFile(file);
-      setFormData({ ...formData, avatar: URL.createObjectURL(file) });
+      // Tạo preview tạm thời
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
     }
   };
+
+  // Giải phóng URL khi avatarFile thay đổi hoặc component unmount
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   const handleAvatarUpload = async () => {
     if (!avatarFile) return;
@@ -111,13 +123,10 @@ const Profile = () => {
       
       const newAvatarUrl = res.data.avatarUrl;
       setFormData(prev => ({ ...prev, avatar: newAvatarUrl }));
-      
-      if (res.data.user) {
-        updateUser(res.data.user);
-      }
+      setAvatarPreview(null); // Xóa preview sau khi upload thành công
+      setAvatarFile(null);
       
       showSuccess('Cập nhật ảnh đại diện thành công!');
-      setAvatarFile(null);
       
       await fetchUserData();
       
@@ -195,7 +204,7 @@ const Profile = () => {
               <div className="mb-3">
                 <div className="position-relative d-inline-block">
                   <img
-                    src={formData.avatar || 'https://via.placeholder.com/120x120?text=Avatar'}
+                    src={avatarPreview || formData.avatar || 'https://via.placeholder.com/120x120?text=Avatar'}
                     alt="Avatar"
                     className="rounded-circle"
                     style={{ 
