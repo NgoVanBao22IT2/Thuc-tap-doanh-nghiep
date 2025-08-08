@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 import { useModal } from '../hooks/useModal';
 import axios from 'axios';
+import dayjs from 'dayjs';
 
 const Profile = () => {
   const { currentUser, logout, updateUser } = useAuth();
@@ -33,7 +34,9 @@ const Profile = () => {
         phone: userData.phone || '',
         address: userData.address || '',
         avatar: userData.avatar || '',
-        date_of_birth: userData.date_of_birth ? userData.date_of_birth.split('T')[0] : '',
+        date_of_birth: userData.date_of_birth
+          ? dayjs(userData.date_of_birth).format('YYYY-MM-DD')
+          : '',
         gender: userData.gender || '',
         status: userData.status || '',
         password: '',
@@ -51,7 +54,9 @@ const Profile = () => {
         phone: currentUser?.phone || '',
         address: currentUser?.address || '',
         avatar: currentUser?.avatar || '',
-        date_of_birth: currentUser?.date_of_birth ? currentUser.date_of_birth.split('T')[0] : '',
+        date_of_birth: currentUser?.date_of_birth
+          ? dayjs(currentUser.date_of_birth).format('YYYY-MM-DD')
+          : '',
         gender: currentUser?.gender || '',
         status: currentUser?.status || '',
         password: '',
@@ -132,20 +137,22 @@ const Profile = () => {
     }
     setLoading(true);
     try {
+      // Đảm bảo date_of_birth đúng định dạng YYYY-MM-DD hoặc null
+      let date_of_birth = formData.date_of_birth
+        ? dayjs(formData.date_of_birth).format('YYYY-MM-DD')
+        : null;
       await axios.put(`/api/users/${currentUser.id}`, {
         ...formData,
+        date_of_birth,
         password: formData.password ? formData.password : undefined
       });
       showSuccess('Cập nhật thông tin thành công!');
-      
       await fetchUserData();
-      
       setFormData(prev => ({
         ...prev,
         password: '',
         confirmPassword: ''
       }));
-      
     } catch (error) {
       console.error('Update error:', error);
       showError('Cập nhật thất bại!');

@@ -7,24 +7,63 @@ const router = express.Router();
 router.get('/product/:productId', (req, res) => {
   const { productId } = req.params;
   const { page = 1, limit = 10, sort = 'newest' } = req.query;
-  
-  // For now, return empty data to prevent crashes
-  res.json({
-    reviews: [],
-    total: 0,
-    page: parseInt(page),
-    totalPages: 0,
-    summary: {
-      total_reviews: 0,
-      average_rating: 0,
-      five_star: 0,
-      four_star: 0,
-      three_star: 0,
-      two_star: 0,
-      one_star: 0
-    }
+  const offset = (page - 1) * limit;
+
+  let orderBy = 'created_at DESC';
+  if (sort === 'oldest') orderBy = 'created_at ASC';
+  if (sort === 'highest') orderBy = 'rating DESC';
+  if (sort === 'lowest') orderBy = 'rating ASC';
+
+  // Lấy danh sách review + tổng số review + thống kê rating
+  const queryReviews = `
+    SELECT * 
+    FROM reviews 
+    WHERE product_id = ? AND status = 'approved'
+    ORDER BY ${orderBy}
+    LIMIT ? OFFSET ?
+  `;
+
+  const queryCount = `
+    SELECT 
+      COUNT(*) AS total_reviews,
+      AVG(rating) AS average_rating,
+      SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS five_star,
+      SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) AS four_star,
+      SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) AS three_star,
+      SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) AS two_star,
+      SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS one_star
+    FROM reviews 
+    WHERE product_id = ? AND status = 'approved'
+  `;
+
+  db.query(queryReviews, [productId, parseInt(limit), offset], (err, reviews) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+
+    db.query(queryCount, [productId], (err, stats) => {
+      if (err) return res.status(500).json({ message: 'Database error' });
+
+      const total = stats[0].total_reviews || 0;
+      const totalPages = Math.ceil(total / limit);
+
+      res.json({
+        reviews,
+        total,
+        page: parseInt(page),
+        totalPages,
+        summary: {
+          total_reviews: total,
+          average_rating: parseFloat(stats[0].average_rating || 0).toFixed(1),
+          five_star: stats[0].five_star || 0,
+          four_star: stats[0].four_star || 0,
+          three_star: stats[0].three_star || 0,
+          two_star: stats[0].two_star || 0,
+          one_star: stats[0].one_star || 0
+        }
+      });
+    });
   });
 });
+
 
 
 // Create review

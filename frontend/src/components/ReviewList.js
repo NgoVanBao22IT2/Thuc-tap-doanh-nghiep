@@ -148,9 +148,11 @@ const ReviewList = ({ productId, refreshTrigger }) => {
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <div className="d-flex align-items-center">
-                    <img 
-                      src={review.avatar || 'https://via.placeholder.com/40x40?text=U'} 
-                      alt={review.user_name}
+                    <img src={review.avatar 
+                    ? `${process.env.REACT_APP_API_URL}${review.avatar}` 
+                    : 'https://via.placeholder.com/40x40?text=U'
+                    }                       
+                    alt={review.user_name}
                       className="rounded-circle me-2"
                       style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                     />
