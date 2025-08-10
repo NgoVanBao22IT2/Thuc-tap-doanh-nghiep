@@ -27,6 +27,7 @@ import Categories from './pages/Categories';
 import Contact from './pages/Contact';
 import OrdersHistory from './pages/OrdersHistory';
 import Orders from './pages/Orders';
+import SaleOff from './pages/SaleOff';
 
 function AppContent() {
   const location = useLocation();
@@ -47,6 +48,7 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/sale-off" element={<SaleOff />} />
           
           {/* User Protected Routes */}
           <Route path="/profile" element={

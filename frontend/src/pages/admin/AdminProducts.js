@@ -14,6 +14,7 @@ const AdminProducts = () => {
     name: '',
     description: '',
     price: '',
+    sale_price: '', // Thêm trường sale_price
     stock_quantity: '',
     category_id: '',
     brand_id: '',
@@ -85,6 +86,12 @@ const AdminProducts = () => {
     }
   };
 
+  // Thêm hàm lấy token
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token'); // hoặc nơi bạn lưu token
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -103,6 +110,7 @@ const AdminProducts = () => {
       const dataToSend = {
         ...formData,
         price: parseFloat(formData.price),
+        sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null, // Thêm sale_price
         stock_quantity: parseInt(formData.stock_quantity),
         category_id: parseInt(formData.category_id),
         brand_id: formData.brand_id ? parseInt(formData.brand_id) : null,
@@ -112,10 +120,18 @@ const AdminProducts = () => {
       };
 
       if (editingProduct) {
-        await axios.put(`/api/products/${editingProduct.id}`, dataToSend);
+        await axios.put(
+          `/api/products/${editingProduct.id}`,
+          dataToSend,
+          { headers: getAuthHeaders() }
+        );
         showSuccess('Cập nhật sản phẩm thành công!');
       } else {
-        await axios.post('/api/products', dataToSend);
+        await axios.post(
+          '/api/products',
+          dataToSend,
+          { headers: getAuthHeaders() }
+        );
         showSuccess('Thêm sản phẩm thành công!');
       }
       
@@ -135,6 +151,7 @@ const AdminProducts = () => {
       name: product.name,
       description: product.description || '',
       price: product.price,
+      sale_price: product.sale_price || '', // Thêm trường sale_price
       stock_quantity: product.stock_quantity,
       category_id: product.category_id,
       brand_id: product.brand_id || '',
@@ -156,7 +173,10 @@ const AdminProducts = () => {
       'Bạn có chắc muốn xóa sản phẩm này?',
       async () => {
         try {
-          await axios.delete(`/api/products/${id}`);
+          await axios.delete(
+            `/api/products/${id}`,
+            { headers: getAuthHeaders() }
+          );
           showSuccess('Xóa sản phẩm thành công!');
           fetchProducts();
         } catch (error) {
@@ -172,6 +192,7 @@ const AdminProducts = () => {
       name: '',
       description: '',
       price: '',
+      sale_price: '', // Thêm trường sale_price
       stock_quantity: '',
       category_id: '',
       brand_id: '',
@@ -239,6 +260,7 @@ const AdminProducts = () => {
                   <th>Tên sản phẩm</th>
                   <th>Danh mục</th>
                   <th>Giá</th>
+                  <th>Giá sale</th> {/* Thêm cột Giá sale */}
                   <th>Tồn kho</th>
                   <th>Thao tác</th>
                 </tr>
@@ -262,6 +284,12 @@ const AdminProducts = () => {
                         style: 'currency', 
                         currency: 'VND' 
                       }).format(product.price)}
+                    </td>
+                    <td>
+                      {product.sale_price
+                        ? <span className="text-danger fw-bold">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.sale_price)}</span>
+                        : <span className="text-muted">-</span>
+                      }
                     </td>
                     <td>{product.stock_quantity}</td>
                     <td>
@@ -467,7 +495,20 @@ const AdminProducts = () => {
                           required
                         />
                       </div>
-                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Giá sale:</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          value={formData.sale_price}
+                          onChange={(e) => setFormData({...formData, sale_price: e.target.value})}
+                          placeholder="Nhập giá sale nếu có"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="row">
                       <div className="col-md-6 mb-3">
                         <label className="form-label">Tồn kho:</label>
                         <input
@@ -478,23 +519,23 @@ const AdminProducts = () => {
                           required
                         />
                       </div>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <label className="form-label">Danh mục:</label>
-                      <select
-                        className="form-select"
-                        value={formData.category_id}
-                        onChange={(e) => setFormData({...formData, category_id: e.target.value})}
-                        required
-                      >
-                        <option value="">Chọn danh mục</option>
-                        {categories.map(category => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
+                      
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Danh mục:</label>
+                        <select
+                          className="form-select"
+                          value={formData.category_id}
+                          onChange={(e) => setFormData({...formData, category_id: e.target.value})}
+                          required
+                        >
+                          <option value="">Chọn danh mục</option>
+                          {categories.map(category => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                     
                     <div className="mb-3">

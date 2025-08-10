@@ -121,7 +121,7 @@ const Home = () => {
           {product.name}
         </h5>
         <div className="mb-1 text-muted small" style={{paddingLeft: '10px'}}>{product.category_name}</div>
-        <div className="mb-2" style={{paddingLeft: '10px'}}>
+        <div className="mb-2 d-flex align-items-center gap-2" style={{paddingLeft: '10px'}}>
           {product.sale_price ? (
             <>
               <span className="fw-bold text-danger fs-5">
@@ -130,13 +130,12 @@ const Home = () => {
                   currency: 'VND'
                 }).format(product.sale_price)}
               </span>
-              <br />
-              <small className="text-decoration-line-through text-muted">
+              <span className="text-muted text-decoration-line-through" style={{fontSize: '1rem'}}>
                 {new Intl.NumberFormat('vi-VN', {
                   style: 'currency',
                   currency: 'VND'
                 }).format(product.price)}
-              </small>
+              </span>
             </>
           ) : (
             <span className="fw-bold text-danger fs-5">
@@ -233,7 +232,7 @@ const Home = () => {
                     {product.name}
                   </h5>
                   <div className="mb-1 text-muted small" style={{paddingLeft: '10px'}}>{product.category_name}</div>
-                  <div className="mb-2" style={{paddingLeft: '10px'}}>
+                  <div className="mb-2 d-flex align-items-center gap-2" style={{paddingLeft: '10px'}}>
                     {product.sale_price ? (
                       <>
                         <span className="fw-bold text-danger fs-5">
@@ -242,13 +241,12 @@ const Home = () => {
                             currency: 'VND'
                           }).format(product.sale_price)}
                         </span>
-                        <br />
-                        <small className="text-decoration-line-through text-muted">
+                        <span className="text-muted text-decoration-line-through" style={{fontSize: '1rem'}}>
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND'
                           }).format(product.price)}
-                        </small>
+                        </span>
                       </>
                     ) : (
                       <span className="fw-bold text-danger fs-5">
@@ -304,6 +302,61 @@ const Home = () => {
         <img src="/images/kuno-logo.jfif" alt="Kuno" style={{height:'60px'}} />
         <img src="/images/kumpoo-logo.png" alt="Kumpoo" style={{height:'60px'}} />
         <img src="/images/vs-logo.jpg" alt="VS" style={{height:'60px'}} />
+      </div>
+    </div>
+  );
+
+  // Thêm hàm renderSaleBannerBlock để hiển thị banner sale
+  const renderSaleBannerBlock = () => (
+    <div className="container mb-5">
+      <div
+        className="sale-banner-block d-flex flex-column align-items-center justify-content-center"
+        style={{
+          background: 'linear-gradient(90deg, #fffbea 60%, #ffe0b2 100%)',
+          borderRadius: 18,
+          boxShadow: '0 4px 24px rgba(255,193,7,0.10)',
+          padding: '32px 0',
+          margin: '0 auto',
+          maxWidth: 1200,
+          position: 'relative',
+        }}
+      >
+        <div className="text-center mb-3">
+          <h2 className="fw-bold text-warning" style={{fontSize: '2.2rem', letterSpacing: 1}}>
+            <i className="bi bi-fire"></i> Sale off
+          </h2>
+          <div style={{
+            width: 80,
+            height: 6,
+            background: 'linear-gradient(90deg, #ff9800 60%, #fffde7 100%)',
+            borderRadius: 4,
+            margin: '0 auto 18px auto'
+          }} />
+        </div>
+        <div className="d-flex flex-wrap justify-content-center align-items-center gap-4 mb-4" style={{width: '100%'}}>
+          <img
+            src="/images/sale1.webp"
+            alt="Sale Banner 1"
+            style={{maxWidth: 350, borderRadius: 12, objectFit: 'cover', boxShadow: '0 2px 12px #ffe08280'}}
+          />
+          <img
+            src="/images/sale2.webp"
+            alt="Sale Banner 2"
+            style={{maxWidth: 350, borderRadius: 12, objectFit: 'cover', boxShadow: '0 2px 12px #ffe08280'}}
+          />
+          <img
+            src="/images/sale3.webp"
+            alt="Sale Banner 3"
+            style={{maxWidth: 350, borderRadius: 12, objectFit: 'cover', boxShadow: '0 2px 12px #ffe08280'}}
+          />
+        </div>
+        <Link
+          to="/sale-off"
+          className="btn btn-warning btn-lg fw-bold px-5"
+          style={{fontSize: '1.15rem', borderRadius: 8}}
+        >
+          Xem sản phẩm sale
+        </Link>
       </div>
     </div>
   );
@@ -414,6 +467,8 @@ const Home = () => {
         </div>
       </div>
 
+     
+
       {/* Danh mục sản phẩm */}
       <div className="container mb-5">
         <h2 className="fw-bold text-success mb-4">Danh mục sản phẩm</h2>
@@ -472,9 +527,11 @@ const Home = () => {
         {renderCategoryBlock(CATEGORY_IDS['giay-cau-long'], 'Giày cầu lông', '/products?category=2')}
         {renderCategoryBlock(CATEGORY_IDS['ao-cau-long'], 'Áo cầu lông', '/products?category=3')}
         {renderCategoryBlock(CATEGORY_IDS['quan-cau-long'], 'Quần cầu lông', '/products?category=9')}
+        {/* Banner Sale Off */}
+        {renderSaleBannerBlock()}
         {renderCategoryBlock(CATEGORY_IDS['vay-cau-long'], 'Váy cầu lông', '/products?category=10')}
         {renderCategoryBlock(CATEGORY_IDS['tui-cau-long'], 'Túi cầu lông', '/products?category=5')}
-        {renderCategoryBlock(CATEGORY_IDS['phu-kien'], 'Phụ kiện', '/products?category=4')}
+        {/* {renderCategoryBlock(CATEGORY_IDS['phu-kien'], 'Phụ kiện', '/products?category=4')} */}
       </div>
 
       {/* Top bán chạy */}

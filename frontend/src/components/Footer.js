@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container">
         <div className="row g-4">
           <div className="col-lg-4 col-md-6">
-            <h5 className="fw-bold mb-2">
+            <h5 className="fw-bold mb-2 text-success">
             <img src="/images/logo.png" style={{ height: "40px", marginRight: "5px" }} />
               BAOBAO Badminton
             </h5>
@@ -80,7 +80,7 @@ const Footer = () => {
         
         <div className="row align-items-center">
           <div className="col-md-12">
-            <p className="mb-0 text-center text-md-center">
+            <p className="mb-0 text-center text-md-center text-success fw-bold">
               &copy; 2025 BAOBAO Badminton. All rights reserved.
             </p>
           </div>

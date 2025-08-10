@@ -21,9 +21,9 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light ">
       <div className="container">
-        <Link className="navbar-brand" to={isAdmin && isAdminPage ? "/admin" : "/"}
+        <Link className="navbar-brand text-success mt-1" to={isAdmin && isAdminPage ? "/admin" : "/"}
           >
-            <img src="/images/logo.png" style={{ height: "50px", marginRight: "10px" }} />
+            <img src="/images/logo.png" style={{ height: "50px", marginRight: "10px"  }} />
           BAOBAO {isAdmin && isAdminPage && <span className="badge bg-danger ms-2">Admin</span>}
         </Link>
         
@@ -66,8 +66,12 @@ const Navbar = () => {
                 <Link className="nav-link" to="/products">Sản phẩm</Link>
               </li>
               <li className="nav-item">
+                <Link className="nav-link" to="/sale-off">Sale Off</Link>
+              </li>
+              <li className="nav-item">
                 <Link className="nav-link" to="/contact">Liên hệ</Link>
               </li>
+              
             </ul>
           )}
           
@@ -76,7 +80,7 @@ const Navbar = () => {
             {!isAdmin || !isAdminPage ? (
               <li className="nav-item">
                 <Link className="nav-link position-relative" to="/cart">
-                  🛒 Giỏ hàng
+                  Giỏ hàng
                   {getCartItemsCount() > 0 && (
                     <span className="cart-badge">{getCartItemsCount()}</span>
                   )}

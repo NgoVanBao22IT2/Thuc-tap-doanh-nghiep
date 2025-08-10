@@ -317,6 +317,11 @@ const Products = () => {
     );
   };
 
+  // Lấy danh sách sản phẩm sale
+  const saleProducts = sortProducts(
+    filteredProducts.filter(p => p.sale_price && p.sale_price < p.price)
+  );
+
   return (
     <div className="container my-5">
       {/* Breadcrumb */}
@@ -449,8 +454,17 @@ const Products = () => {
                         </li>
                       ))}
                   </React.Fragment>
+                  
                 ))}
             </ul>
+             {selectedCategory && (
+              <button
+                className="btn btn-outline-secondary mt-3"
+                onClick={() => { setSelectedCategory(''); setPage(1); }}
+              >
+                Xóa bộ lọc danh mục
+              </button>
+            )}
           </div>
         </div>
         {/* Sản phẩm */}
@@ -516,6 +530,81 @@ const Products = () => {
                 </div>
               ) : (
                 <>
+                  {/* Nhóm sản phẩm Sale Off */}
+                  {/* {saleProducts.length > 0 && (
+                    <div className="mb-5">
+                      <h4 className="fw-bold text-warning mb-3">
+                        <i className="bi bi-fire"></i> Sản phẩm Sale Off
+                      </h4>
+                      <div className="row g-3">
+                        {saleProducts.map((product, index) => (
+                          <div key={product.id} className="col-xl-3 col-lg-4 col-md-6">
+                            <div
+                              className="product-card h-100 fade-in-up border border-warning"
+                              style={{
+                                animationDelay: `${index * 0.05}s`,
+                                borderRadius: '10px',
+                                boxShadow: '0 4px 16px rgba(255,193,7,0.08)',
+                                overflow: 'hidden',
+                                backgroundColor: '#fffbea',
+                                transition: 'transform 0.2s ease',
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                              <div className="position-relative overflow-hidden mb-2">
+                                <img
+                                  src={product.image_url || 'https://via.placeholder.com/300x200/f8f9fa/6c757d?text=No+Image'}
+                                  className="card-img-top"
+                                  alt={product.name}
+                                  style={{
+                                    height: '320px',
+                                    objectFit: 'cover',
+                                    width: '100%',
+                                  }}
+                                />
+                                <div className="position-absolute top-0 end-0 m-2">
+                                  <span className="badge bg-danger text-white fs-6">
+                                    -{Math.round(((product.price - product.sale_price) / product.price) * 100)}%
+                                  </span>
+                                </div>
+                                {product.stock_quantity === 0 && (
+                                  <div className="position-absolute top-0 start-0 m-2">
+                                    <span className="badge bg-secondary" style={{ fontWeight: 500, fontSize: '0.8rem' }}>Hết hàng</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="card-body d-flex flex-column">
+                                <h5 className="card-title text-dark fw-semibold" style={{ fontSize: '1rem', minHeight: '3em', paddingLeft: '10px' }}>
+                                  {product.name}
+                                </h5>
+                                <div className="mb-1 text-muted small" style={{ paddingLeft: '10px' }}>{product.category_name}</div>
+                                <div className="mb-2" style={{ paddingLeft: '10px' }}>
+                                  <span className="fw-bold text-danger fs-5">
+                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.sale_price)}
+                                  </span>
+                                  <br />
+                                  <small className="text-decoration-line-through text-muted">
+                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
+                                  </small>
+                                </div>
+                                <div className="mt-auto">
+                                  <Link
+                                    to={`/products/${product.id}`}
+                                    className={`btn ${product.stock_quantity === 0 ? 'btn-outline-secondary' : 'btn-warning'} w-100`}
+                                    style={{ fontWeight: 600, fontSize: '0.95rem', padding: '10px' }}
+                                  >
+                                    {product.stock_quantity === 0 ? 'Xem chi tiết' : 'Mua ngay'}
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )} */}
+
                   {/* Nếu là danh mục cha thì hiển thị tất cả sản phẩm, không chia nhóm */}
                   {selectedCategory &&
                     (() => {
@@ -524,7 +613,9 @@ const Products = () => {
                     })() ? (
                     <div>
                       <div className="row g-3">
-                        {Object.values(groupedPagedProducts)[0].map((product, index) => (
+                        {Object.values(groupedPagedProducts)[0]
+                          .filter(product => !(product.sale_price && product.sale_price < product.price)) // loại sản phẩm sale đã hiển thị ở trên
+                          .map((product, index) => (
                           <div key={product.id} className="col-xl-3 col-lg-4 col-md-6">
                             <div
                               className="product-card h-100 fade-in-up"
@@ -601,12 +692,14 @@ const Products = () => {
                       </div>
                     </div>
                   ) : (
-                    // Nếu không phải danh mục cha, hiển thị như cũ
+                    // Nếu không phải danh mục cha, hiển thị như cũ, loại sản phẩm sale đã hiển thị ở trên
                     Object.entries(groupedPagedProducts).map(([category, items]) => (
                       <div key={category} className="mb-5">
                         <h4 className="fw-bold text-success mb-3">{category}</h4>
                         <div className="row g-3">
-                          {items.map((product, index) => (
+                          {items
+                            .filter(product => !(product.sale_price && product.sale_price < product.price))
+                            .map((product, index) => (
                             <div key={product.id} className="col-xl-3 col-lg-4 col-md-6">
                               <div
                                 className="product-card h-100 fade-in-up"
@@ -620,6 +713,8 @@ const Products = () => {
                                 }}
                                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
                                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                                onClick={() => navigate(`/products/${product.id}`)}
+
                               >
                                 <div className="position-relative overflow-hidden mb-2">
                                   <img
