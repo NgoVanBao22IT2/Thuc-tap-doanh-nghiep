@@ -108,7 +108,7 @@ const Contact = () => {
         <i className="bi bi-arrow-up"></i>
       </button>
 
-      <h2 className="fw-bold text-success mb-4">Liên hệ với chúng tôi</h2>
+      <h2 className="fw-bold text-dark mb-4">Liên hệ với chúng tôi</h2>
       <div className="row">
         <div className="col-lg-6 mb-4">
           <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
