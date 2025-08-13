@@ -29,7 +29,7 @@ app.use('/api/sizes', require('./routes/sizes'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/cart', require('./routes/cart'));
-
+app.use('/api/news', require('./routes/news'));
 
 // Health check
 app.get('/api/health', (req, res) => {

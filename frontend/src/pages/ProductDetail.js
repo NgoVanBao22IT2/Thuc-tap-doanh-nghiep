@@ -22,6 +22,11 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
+   // Thêm hàm cuộn lên đầu trang
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const fetchProduct = async () => {
     try {
       const response = await axios.get(`/api/products/${id}`);
@@ -94,7 +99,7 @@ const ProductDetail = () => {
               <button 
                 className="btn btn-link p-0"
                 onClick={() => navigate('/')}
-                style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
+                style={{ color: '#00a61eff', textDecoration: 'none', fontWeight: 500 }}
 
               >
                 Trang chủ
@@ -104,13 +109,22 @@ const ProductDetail = () => {
               <button 
                 className="btn btn-link p-0"
                 onClick={() => navigate('/products')}
-                style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
+                style={{ color: '#00a61eff', textDecoration: 'none', fontWeight: 500 }}
 
               >
                 Sản phẩm
               </button>
             </li>
-            <li className="breadcrumb-item active">{product.name}</li>
+            <li className="breadcrumb-item active">
+              <button 
+                className="btn btn-link p-0"
+                onClick={() => navigate('/products')}
+                style={{ color: '#00a61eff', textDecoration: 'none', fontWeight: 500 }}
+
+              >
+                {product.name}
+              </button>
+              </li>
           </ol>
         </nav>
 
@@ -334,6 +348,30 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+      
+      {/* Nút trở lại đầu trang */}
+      <button
+        type="button"
+        onClick={scrollToTop}
+        style={{
+          position: 'fixed',
+          bottom: 32,
+          right: 32,
+          zIndex: 999,
+          background: '#00a65a',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '50%',
+          width: 48,
+          height: 48,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          fontSize: 24,
+          cursor: 'pointer'
+        }}
+        title="Lên đầu trang"
+      >
+        <i className="bi bi-arrow-up"></i>
+      </button>
       
       <Modal
         show={modal.show}

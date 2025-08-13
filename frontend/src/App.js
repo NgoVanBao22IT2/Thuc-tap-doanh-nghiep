@@ -22,12 +22,15 @@ import AdminContacts from './pages/admin/AdminContacts';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminSlides from './pages/admin/AdminSlides';
 import AdminReviews from './pages/admin/AdminReviews';
+import AdminNews from './pages/admin/AdminNews';
 import ProtectedRoute from './components/ProtectedRoute';
 import Categories from './pages/Categories';
 import Contact from './pages/Contact';
 import OrdersHistory from './pages/OrdersHistory';
 import Orders from './pages/Orders';
 import SaleOff from './pages/SaleOff';
+import News from './pages/News';
+import NewsDetail from './pages/NewsDetail';
 
 function AppContent() {
   const location = useLocation();
@@ -49,6 +52,8 @@ function AppContent() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/sale-off" element={<SaleOff />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
           
           {/* User Protected Routes */}
           <Route path="/profile" element={
@@ -116,6 +121,11 @@ function AppContent() {
           <Route path="/admin/reviews" element={
             <ProtectedRoute adminOnly>
               <AdminReviews />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/news" element={
+            <ProtectedRoute adminOnly>
+              <AdminNews />
             </ProtectedRoute>
           } />
         </Routes>

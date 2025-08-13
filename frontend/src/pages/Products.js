@@ -80,6 +80,11 @@ const Products = () => {
     }
   };
 
+   // Thêm hàm cuộn lên đầu trang
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Lọc sản phẩm theo bộ lọc sidebar
   const filterBySidebar = (product) => {
     let match = true;
@@ -331,7 +336,7 @@ const Products = () => {
             <button
               className="btn btn-link p-0"
               onClick={() => navigate('/')}
-              style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
+              style={{ color: '#00a61eff', textDecoration: 'none', fontWeight: 500 }}
             >
               Trang chủ
             </button>
@@ -340,7 +345,7 @@ const Products = () => {
             <button
               className="btn btn-link p-0"
               onClick={() => navigate('/products')}
-              style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
+              style={{ color: '#00a61eff', textDecoration: 'none', fontWeight: 500 }}
             >
               Sản phẩm
             </button>
@@ -804,6 +809,29 @@ const Products = () => {
               )}
             </>
           )}
+          {/* Nút trở lại đầu trang */}
+      <button
+        type="button"
+        onClick={scrollToTop}
+        style={{
+          position: 'fixed',
+          bottom: 32,
+          right: 32,
+          zIndex: 999,
+          background: '#00a65a',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '50%',
+          width: 48,
+          height: 48,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          fontSize: 24,
+          cursor: 'pointer'
+        }}
+        title="Lên đầu trang"
+      >
+        <i className="bi bi-arrow-up"></i>
+      </button>
         </div>
       </div>
     </div>

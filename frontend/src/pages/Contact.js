@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const Contact = () => {
@@ -12,9 +13,16 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+ // Thêm hàm cuộn lên đầu trang
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmit = async e => {
@@ -40,6 +48,66 @@ const Contact = () => {
 
   return (
     <div className="container my-5">
+       {/* Breadcrumb */}
+        <nav aria-label="breadcrumb" className="mb-4">
+          <ol className="breadcrumb">
+            <li className="breadcrumb-item">
+              <button 
+                className="btn btn-link p-0"
+                onClick={() => navigate('/')}
+                style={{ color: '#00a61eff', textDecoration: 'none', fontWeight: 500 }}
+
+              >
+                Trang chủ
+              </button>
+            </li>
+            <li className="breadcrumb-item">
+              <button 
+                className="btn btn-link p-0"
+                onClick={() => navigate('/contact')}
+                style={{ color: '#00a61eff', textDecoration: 'none', fontWeight: 500 }}
+
+              >
+                Liên hệ
+              </button>
+            </li>
+            {/* <li className="breadcrumb-item active">
+              <button 
+                className="btn btn-link p-0"
+                onClick={() => navigate('/products')}
+                style={{ color: '#00a61eff', textDecoration: 'underline', fontWeight: 500 }}
+
+              >
+                {product.name}
+              </button>
+              </li> */}
+          </ol>
+        </nav>
+
+        {/* Nút trở lại đầu trang */}
+      <button
+        type="button"
+        onClick={scrollToTop}
+        style={{
+          position: 'fixed',
+          bottom: 32,
+          right: 32,
+          zIndex: 999,
+          background: '#00a65a',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '50%',
+          width: 48,
+          height: 48,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          fontSize: 24,
+          cursor: 'pointer'
+        }}
+        title="Lên đầu trang"
+      >
+        <i className="bi bi-arrow-up"></i>
+      </button>
+
       <h2 className="fw-bold text-success mb-4">Liên hệ với chúng tôi</h2>
       <div className="row">
         <div className="col-lg-6 mb-4">
@@ -146,6 +214,7 @@ const Contact = () => {
         </div>
       </div>
     </div>
+    
   );
 };
 
