@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 import { useModal } from '../hooks/useModal';
+import ScrollToTopButton from "../components/ScrollToTopButton";
+
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -170,6 +172,8 @@ const Register = () => {
           </div>
         </div>
       </div>
+      {/* Nút trở lại đầu trang */}
+        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
       
       <Modal
         show={modal.show}

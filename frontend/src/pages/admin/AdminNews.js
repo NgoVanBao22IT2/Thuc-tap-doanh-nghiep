@@ -219,11 +219,8 @@ const AdminNews = () => {
                   <th>ID</th>
                   <th>Tiêu đề</th>
                   <th>Chuyên mục</th>
-                  <th>Mô tả</th>
-                  <th>Ảnh</th>
                   <th>Nội dung</th>
-                  
-                  {/* <th>Tác giả</th> */}
+                  <th>Tác giả</th>
                   <th>Trạng thái</th>
                   <th>Ngày tạo</th>
                   <th>Thao tác</th>
@@ -242,15 +239,9 @@ const AdminNews = () => {
                       <td>{item.id}</td>
                       <td style={{ width:'200px'}}>{item.title}</td>
                       <td>{item.category}</td>
-                      <td style={{ width:'250px'}}>{item.content}</td>
-                      <td style={{ width:'70px'}}><img 
-                        src={item.image_url || 'https://via.placeholder.com/50x50'} 
-                        alt={item.title}
-                        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                        className="rounded"
-                      /></td>
+                      
                       <td>{renderBlocksSummary(item.blocks)}</td>
-                      {/* <td>{item.author}</td> */}
+                      <td>{item.author}</td>
                       <td>
                         <span
                           className={`badge bg-${
@@ -322,26 +313,8 @@ const AdminNews = () => {
                         onChange={handleChange}
                       />
                     </div>
-                    <div className="mb-3">
-                      <label className="form-label">Nội dung:</label>
-                      <textarea
-                        className="form-control"
-                        name="content"
-                        value={form.content}
-                        onChange={handleChange}
-                        rows={4}
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Ảnh (URL):</label>
-                      <input
-                        className="form-control"
-                        name="image"
-                        value={form.image}
-                        onChange={handleChange}
-                      />
-                    </div>
+                    
+                    
                     <div className="mb-3">
                       <label className="form-label">Tác giả:</label>
                       <input

@@ -4,6 +4,9 @@ import Modal from '../components/Modal';
 import { useModal } from '../hooks/useModal';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
+import ScrollToTopButton from "../components/ScrollToTopButton";
+
 
 const Profile = () => {
   const { currentUser, logout, updateUser } = useAuth();
@@ -24,6 +27,7 @@ const Profile = () => {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const navigate = useNavigate();
 
  // Thêm hàm cuộn lên đầu trang
   const scrollToTop = () => {
@@ -420,29 +424,8 @@ const Profile = () => {
         </div>
       </div>
       
-      {/* Nút trở lại đầu trang */}
-      <button
-        type="button"
-        onClick={scrollToTop}
-        style={{
-          position: 'fixed',
-          bottom: 32,
-          right: 32,
-          zIndex: 999,
-          background: '#00a65a',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '50%',
-          width: 48,
-          height: 48,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          fontSize: 24,
-          cursor: 'pointer'
-        }}
-        title="Lên đầu trang"
-      >
-        <i className="bi bi-arrow-up"></i>
-      </button>
+{/* Nút trở lại đầu trang */}
+        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
 
       <Modal
         show={modal.show}

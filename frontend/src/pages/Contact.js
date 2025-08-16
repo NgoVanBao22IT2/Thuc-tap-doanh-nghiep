@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import ScrollToTopButton from "../components/ScrollToTopButton";
+
 
 const Contact = () => {
   const [form, setForm] = useState({
@@ -84,29 +86,10 @@ const Contact = () => {
           </ol>
         </nav>
 
-        {/* Nút trở lại đầu trang */}
-      <button
-        type="button"
-        onClick={scrollToTop}
-        style={{
-          position: 'fixed',
-          bottom: 32,
-          right: 32,
-          zIndex: 999,
-          background: '#00a65a',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '50%',
-          width: 48,
-          height: 48,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          fontSize: 24,
-          cursor: 'pointer'
-        }}
-        title="Lên đầu trang"
-      >
-        <i className="bi bi-arrow-up"></i>
-      </button>
+   {/* Nút trở lại đầu trang */}
+        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
+
+
 
       <h2 className="fw-bold text-dark mb-4">Liên hệ với chúng tôi</h2>
       <div className="row">

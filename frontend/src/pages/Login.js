@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import ScrollToTopButton from "../components/ScrollToTopButton";
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -100,7 +102,10 @@ const Login = () => {
           </div>
         </div>
       </div>
+      {/* Nút trở lại đầu trang */}
+        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
     </div>
+    
   );
 };
 

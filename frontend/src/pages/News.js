@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
@@ -12,7 +13,9 @@ const News = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
   const location = useLocation();
+  const PAGE_SIZE = 8;
   const selectedCategory = new URLSearchParams(location.search).get("category");
   const [sortType, setSortType] = useState("default");
 
@@ -33,9 +36,152 @@ const News = () => {
     return arr;
   };
 
-  // Hàm cuộn lên đầu trang
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const totalPages = Math.ceil(news.length / PAGE_SIZE);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+    const maxVisible = 3;
+
+    // Nút Previous
+    pages.push(
+      <li key="prev" className={`page-item ${page === 1 ? "disabled" : ""}`}>
+        <button
+          className="page-link"
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+        >
+          Trước
+        </button>
+      </li>
+    );
+
+    if (totalPages <= maxVisible) {
+      // Hiển thị tất cả trang nếu <= 3
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(
+          <li key={i} className={`page-item ${page === i ? "active" : ""}`}>
+            <button className="page-link" onClick={() => handlePageChange(i)}>
+              {i}
+            </button>
+          </li>
+        );
+      }
+    } else {
+      // Logic phức tạp cho nhiều trang
+      if (page <= 3) {
+        for (let i = 1; i <= 3; i++) {
+          pages.push(
+            <li key={i} className={`page-item ${page === i ? "active" : ""}`}>
+              <button className="page-link" onClick={() => handlePageChange(i)}>
+                {i}
+              </button>
+            </li>
+          );
+        }
+        pages.push(
+          <li key="ellipsis-end" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        pages.push(
+          <li key={totalPages} className="page-item">
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(totalPages)}
+            >
+              {totalPages}
+            </button>
+          </li>
+        );
+      } else if (page >= totalPages - 2) {
+        pages.push(
+          <li key={1} className="page-item">
+            <button className="page-link" onClick={() => handlePageChange(1)}>
+              1
+            </button>
+          </li>
+        );
+        pages.push(
+          <li key="ellipsis-start" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(
+            <li key={i} className={`page-item ${page === i ? "active" : ""}`}>
+              <button className="page-link" onClick={() => handlePageChange(i)}>
+                {i}
+              </button>
+            </li>
+          );
+        }
+      } else {
+        pages.push(
+          <li key={1} className="page-item">
+            <button className="page-link" onClick={() => handlePageChange(1)}>
+              1
+            </button>
+          </li>
+        );
+        pages.push(
+          <li key="ellipsis-start" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        for (let i = page - 1; i <= page + 1; i++) {
+          pages.push(
+            <li key={i} className={`page-item ${page === i ? "active" : ""}`}>
+              <button className="page-link" onClick={() => handlePageChange(i)}>
+                {i}
+              </button>
+            </li>
+          );
+        }
+        pages.push(
+          <li key="ellipsis-end" className="page-item disabled">
+            <span className="page-link">...</span>
+          </li>
+        );
+        pages.push(
+          <li key={totalPages} className="page-item">
+            <button
+              className="page-link"
+              onClick={() => handlePageChange(totalPages)}
+            >
+              {totalPages}
+            </button>
+          </li>
+        );
+      }
+    }
+
+    // Nút Next
+    pages.push(
+      <li
+        key="next"
+        className={`page-item ${page === totalPages ? "disabled" : ""}`}
+      >
+        <button
+          className="page-link"
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages}
+        >
+          Sau
+        </button>
+      </li>
+    );
+
+    return (
+      <nav aria-label="Product pagination" className="mt-4">
+        <ul className="pagination justify-content-center">{pages}</ul>
+      </nav>
+    );
   };
 
   useEffect(() => {
@@ -95,9 +241,10 @@ const News = () => {
             <option value="title-asc">Tiêu đề A → Z</option>
             <option value="title-desc">Tiêu đề Z → A</option>
           </select>
-          <span className="ms-auto text-muted">
+          {/* <div className="d-flex align-items-end">
+            <span className="ms-auto text-muted">
             Tổng: <b>{sortNews(news).length}</b> Tin tức
-          </span>
+          </span></div> */}
         </div>
       </div>
 
@@ -112,68 +259,119 @@ const News = () => {
             Chưa có tin tức nào.
           </div>
         ) : (
-          sortNews(news).map((item) => (
-            <div className="col-lg-3 col-md-6" key={item.id}>
-              <div className="card h-100 shadow-sm border-0">
-                <div
-                  style={{
-                    height: 210,
-                    overflow: "hidden",
-                    background: "#f8f9fa",
-                  }}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="card-img-top"
-                    style={{ height: 210, objectFit: "cover" }}
-                  />
-                </div>
-                <div className="card-body d-flex flex-column" >
-                  <h5 className="card-title fw-bold">{item.title}</h5>
-                  <div className="mb-2 text-muted small">
-                    <i className="bi bi-calendar-event"></i>{" "}
-                    {formatDate(item.date)}
+          // Sửa lại: chỉ hiển thị tin tức của trang hiện tại
+          sortNews(news)
+            .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+            .map((item) => (
+              <div className="col-lg-3 col-md-6" key={item.id}>
+                <div className="card h-100 shadow-sm border-0">
+                  <div
+                    style={{
+                      height: 210,
+                      overflow: "hidden",
+                      background: "#f8f9fa",
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="card-img-top"
+                      style={{ height: 210, objectFit: "cover" }}
+                    />
                   </div>
-                  <p className="card-text">{item.summary}</p>
-                  <div className="mt-auto">
-                    <Link
-                      to={`/news/${item.id}`}
-                      className="btn btn-outline-success w-100"
-                    >
-                      Xem chi tiết
-                    </Link>
+                  <div className="card-body d-flex flex-column">
+                    <h5 className="card-title fw-bold">{item.title}</h5>
+                    <div className="mb-2 text-muted small">
+                      <i className="bi bi-calendar-event"></i>{" "}
+                      {formatDate(item.date)}
+                    </div>
+                    <p className="card-text">{item.summary}</p>
+                    <div className="mt-auto">
+                      <Link
+                        to={`/news/${item.id}`}
+                        className="btn btn-outline-success w-100"
+                      >
+                        Xem chi tiết
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))
+        )}
+        {/* Phân trang */}
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-center mt-4">
+            <nav>
+              <ul className="pagination custom-pagination">
+                <li className={`page-item${page === 1 ? " disabled" : ""}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(page - 1)}
+                  >
+                    &lt;
+                  </button>
+                </li>
+                {[...Array(totalPages)].map((_, i) => (
+                  <li
+                    key={i + 1}
+                    className={`page-item${page === i + 1 ? " active" : ""}`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  </li>
+                ))}
+                <li
+                  className={`page-item${
+                    page === totalPages ? " disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() => handlePageChange(page + 1)}
+                  >
+                    &gt;
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
         )}
 
         {/* Nút trở lại đầu trang */}
-        <button
-          type="button"
-          onClick={scrollToTop}
-          style={{
-            position: "fixed",
-            bottom: 32,
-            right: 32,
-            zIndex: 999,
-            background: "#00a65a",
-            color: "#fff",
-            border: "none",
-            borderRadius: "50%",
-            width: 48,
-            height: 48,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            fontSize: 24,
-            cursor: "pointer",
-          }}
-          title="Lên đầu trang"
-        >
-          <i className="bi bi-arrow-up"></i>
-        </button>
+        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
       </div>
+      {/* Thêm style đổi màu phân trang */}
+      <style>
+        {`
+        .custom-pagination .page-item.active .page-link {
+          background-color: #0a8621ff;
+          color: #fff;
+          border-color: #0a8621ff;
+        }
+        .custom-pagination .page-link {
+          color: #0a8621ff;
+          border-radius: 8px;
+          margin: 0 2px;
+          border: 1px solid #e0e0e0;
+          background: #fff;
+          transition: background 0.2s;
+        }
+        .custom-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+          background-color: #e3f2fd;
+          color: #0a8621ff;
+        }
+        .custom-pagination .page-item.disabled .page-link {
+          background: #f5f5f5;
+          color: #bdbdbd;
+          border-color: #e0e0e0;
+        }
+        `}
+      </style>
     </div>
   );
 };

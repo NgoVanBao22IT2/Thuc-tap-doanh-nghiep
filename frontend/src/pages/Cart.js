@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import Modal from '../components/Modal';
 import { useModal } from '../hooks/useModal';
 import axios from 'axios';
+import ScrollToTopButton from "../components/ScrollToTopButton";
+
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
@@ -371,29 +373,10 @@ const Cart = () => {
           </div>
         </div>
       </div>
-      {/* Nút trở lại đầu trang */}
-      <button
-        type="button"
-        onClick={scrollToTop}
-        style={{
-          position: 'fixed',
-          bottom: 32,
-          right: 32,
-          zIndex: 999,
-          background: '#00a65a',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '50%',
-          width: 48,
-          height: 48,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          fontSize: 24,
-          cursor: 'pointer'
-        }}
-        title="Lên đầu trang"
-      >
-        <i className="bi bi-arrow-up"></i>
-      </button>
+     
+  {/* Nút trở lại đầu trang */}
+        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
+      
 
       <Modal
         show={modal.show}

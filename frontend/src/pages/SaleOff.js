@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ScrollToTopButton from "../components/ScrollToTopButton";
+
 
 const PAGE_SIZE = 16;
 
@@ -374,7 +376,7 @@ const SaleOff = () => {
               {totalPages > 1 && (
                 <div className="d-flex justify-content-center mt-4">
                   <nav>
-                    <ul className="pagination">
+                    <ul className="pagination custom-pagination">
                       <li className={`page-item${page === 1 ? ' disabled' : ''}`}>
                         <button className="page-link" onClick={() => setPage(page - 1)}>&lt;</button>
                       </li>
@@ -392,30 +394,37 @@ const SaleOff = () => {
               )}
             </>
           )}
+            {/* Thêm style đổi màu phân trang */}
+                  <style>
+                    {`
+        .custom-pagination .page-item.active .page-link {
+          background-color: #0a8621ff;
+          color: #fff;
+          border-color: #0a8621ff;
+        }
+        .custom-pagination .page-link {
+          color: #0a8621ff;
+          border-radius: 8px;
+          margin: 0 2px;
+          border: 1px solid #e0e0e0;
+          background: #fff;
+          transition: background 0.2s;
+        }
+        .custom-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+          background-color: #e3f2fd;
+          color: #0a8621ff;
+        }
+        .custom-pagination .page-item.disabled .page-link {
+          background: #f5f5f5;
+          color: #bdbdbd;
+          border-color: #e0e0e0;
+        }
+        `}
+                  </style>
 
-          {/* Nút trở lại đầu trang */}
-      <button
-        type="button"
-        onClick={scrollToTop}
-        style={{
-          position: 'fixed',
-          bottom: 32,
-          right: 32,
-          zIndex: 999,
-          background: '#00a65a',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '50%',
-          width: 48,
-          height: 48,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          fontSize: 24,
-          cursor: 'pointer'
-        }}
-        title="Lên đầu trang"
-      >
-        <i className="bi bi-arrow-up"></i>
-      </button>
+{/* Nút trở lại đầu trang */}
+        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
+      
         </div>
       </div>
     </div>
