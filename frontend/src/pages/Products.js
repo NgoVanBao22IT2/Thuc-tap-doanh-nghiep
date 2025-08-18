@@ -725,13 +725,7 @@ const Products = () => {
                     <div>
                       <div className="row g-3">
                         {Object.values(groupedPagedProducts)[0]
-                          .filter(
-                            (product) =>
-                              !(
-                                product.sale_price &&
-                                product.sale_price < product.price
-                              )
-                          ) // loại sản phẩm sale đã hiển thị ở trên
+                          // BỎ filter loại sản phẩm sale ở đây để hiển thị đúng số lượng sản phẩm
                           .map((product, index) => (
                             <div
                               key={product.id}
@@ -820,21 +814,29 @@ const Products = () => {
                                     style={{ paddingLeft: "10px" }}
                                   >
                                     {product.sale_price ? (
-                                      <>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: "12px",
+                                        }}
+                                      >
                                         <span className="fw-bold text-danger fs-5">
                                           {new Intl.NumberFormat("vi-VN", {
                                             style: "currency",
                                             currency: "VND",
                                           }).format(product.sale_price)}
                                         </span>
-                                        <br />
-                                        <small className="text-decoration-line-through text-muted">
+                                        <small
+                                          className="text-decoration-line-through text-muted"
+                                          style={{ fontSize: "1.1em" }}
+                                        >
                                           {new Intl.NumberFormat("vi-VN", {
                                             style: "currency",
                                             currency: "VND",
                                           }).format(product.price)}
                                         </small>
-                                      </>
+                                      </div>
                                     ) : (
                                       <span className="fw-bold text-danger fs-5">
                                         {new Intl.NumberFormat("vi-VN", {
@@ -879,13 +881,7 @@ const Products = () => {
                           </h4>
                           <div className="row g-3">
                             {items
-                              .filter(
-                                (product) =>
-                                  !(
-                                    product.sale_price &&
-                                    product.sale_price < product.price
-                                  )
-                              )
+                              // BỎ filter loại sản phẩm sale ở đây để hiển thị đúng số lượng sản phẩm
                               .map((product, index) => (
                                 <div
                                   key={product.id}
@@ -977,21 +973,29 @@ const Products = () => {
                                         style={{ paddingLeft: "10px" }}
                                       >
                                         {product.sale_price ? (
-                                          <>
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: "12px",
+                                            }}
+                                          >
                                             <span className="fw-bold text-danger fs-5">
                                               {new Intl.NumberFormat("vi-VN", {
                                                 style: "currency",
                                                 currency: "VND",
                                               }).format(product.sale_price)}
                                             </span>
-                                            <br />
-                                            <small className="text-decoration-line-through text-muted">
+                                            <small
+                                              className="text-decoration-line-through text-muted"
+                                              style={{ fontSize: "1.1em" }}
+                                            >
                                               {new Intl.NumberFormat("vi-VN", {
                                                 style: "currency",
                                                 currency: "VND",
                                               }).format(product.price)}
                                             </small>
-                                          </>
+                                          </div>
                                         ) : (
                                           <span className="fw-bold text-danger fs-5">
                                             {new Intl.NumberFormat("vi-VN", {

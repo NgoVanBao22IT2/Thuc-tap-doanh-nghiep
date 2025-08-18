@@ -34,11 +34,11 @@ const Footer = () => {
           <div className="col-lg-2 col-md-6">
             <h6 className="fw-bold">Sản phẩm</h6>
             <ul className="list-unstyled">
-              <li className="mb-2"><Link to="/products?category=1" className="text-decoration-none">Túi cầu lông</Link></li>
-              <li className="mb-2"><Link to="/products?category=2" className="text-decoration-none">Vợt cầu lông</Link></li>
-              <li className="mb-2"><Link to="/products?category=3" className="text-decoration-none">Giày cầu lông</Link></li>
-              <li className="mb-2"><Link to="/products?category=4" className="text-decoration-none">Áo quần</Link></li>
-              <li className="mb-2"><Link to="/products?category=5" className="text-decoration-none">Phụ kiện</Link></li>
+              <li className="mb-2"><Link to="/products?category=1" className="text-decoration-none">Vợt cầu lông</Link></li>
+              <li className="mb-2"><Link to="/products?category=5" className="text-decoration-none">Túi cầu lông</Link></li>
+              <li className="mb-2"><Link to="/products?category=6" className="text-decoration-none">Giày cầu lông</Link></li>
+              <li className="mb-2"><Link to="/products?category=2" className="text-decoration-none">Áo quần</Link></li>
+              <li className="mb-2"><Link to="/products?category=7" className="text-decoration-none">Phụ kiện</Link></li>
             </ul>
           </div>
           
