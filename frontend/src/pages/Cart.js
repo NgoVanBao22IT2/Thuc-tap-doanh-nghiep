@@ -94,12 +94,6 @@ const Cart = () => {
       navigate("/login");
       return;
     }
-    if (currentUser.status !== "active") {
-      showError(
-        "Tài khoản của bạn đã bị khóa hoặc chưa được kích hoạt. Vui lòng liên hệ admin để mở lại!"
-      );
-      return;
-    }
     if (!shippingAddress.trim()) {
       showError("Vui lòng nhập địa chỉ giao hàng!");
       return;
@@ -131,6 +125,9 @@ const Cart = () => {
         coupon_id: selectedCouponObj?.id || null,
         user_id: currentUser?.id,
       };
+
+      console.log("Order data being sent:", orderData); // Debug log
+
       const res = await axios.post("/api/orders", orderData);
 
       if (res.data && res.data.success === false) {
@@ -146,9 +143,9 @@ const Cart = () => {
         }\nTổng tiền: ${new Intl.NumberFormat("vi-VN", {
           style: "currency",
           currency: "VND",
-        }).format(
-          getCartTotal() - discountAmount + shippingFee
-        )}\n\nCảm ơn bạn đã mua hàng!`,
+        }).format(getCartTotal() - discountAmount + shippingFee)}\n\n${
+          res.data.stockUpdated ? "Tồn kho đã được cập nhật.\n" : ""
+        }Cảm ơn bạn đã mua hàng!`,
         "Đặt hàng thành công",
         () => {
           // Clear cart và chuyển trang chỉ sau khi user click OK

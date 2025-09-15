@@ -42,14 +42,27 @@ const AdminProducts = () => {
       const response = await axios.get("/api/products");
       const allProducts = response.data;
 
+      // Tính tổng tồn kho từ các size cho mỗi sản phẩm
+      const productsWithTotalStock = allProducts.map((product) => {
+        // Tính tổng stock từ tất cả các size
+        const totalStock = product.sizes
+          ? product.sizes.reduce((total, size) => total + (size.stock || 0), 0)
+          : product.stock_quantity || 0;
+
+        return {
+          ...product,
+          calculated_stock: totalStock, // Lưu tổng stock đã tính
+        };
+      });
+
       // Filter by search term
       const filteredProducts = searchTerm
-        ? allProducts.filter(
+        ? productsWithTotalStock.filter(
             (product) =>
               product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
               product.sku.toLowerCase().includes(searchTerm.toLowerCase())
           )
-        : allProducts;
+        : productsWithTotalStock;
 
       // Calculate pagination
       const totalItems = filteredProducts.length;
@@ -120,7 +133,6 @@ const AdminProducts = () => {
         status: formData.status || "active",
         slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-"),
         sku: formData.sku || `SKU-${Date.now()}`,
-      
       };
 
       if (editingProduct) {
@@ -300,7 +312,8 @@ const AdminProducts = () => {
                         <span className="text-muted">-</span>
                       )}
                     </td>
-                    <td>{product.stock_quantity}</td>
+                    <td>{product.calculated_stock || 0}</td>{" "}
+                    {/* Hiển thị tổng stock đã tính */}
                     <td>
                       <button
                         className="btn btn-sm btn-outline-primary me-2"

@@ -34,9 +34,10 @@ const Orders = () => {
     const statusConfig = {
       pending: { class: "bg-warning text-dark", text: "Chờ xác nhận" },
       confirmed: { class: "bg-info", text: "Đã xác nhận" },
-      shipped: { class: "bg-primary", text: "Đang giao" },
-      delivered: { class: "bg-success", text: "Đã giao" },
+      shipped: { class: "bg-primary", text: "Đang giao hàng" },
+      delivered: { class: "bg-success", text: "Đã giao hàng" },
       cancelled: { class: "bg-danger", text: "Đã hủy" },
+      refunded: { class: "bg-dark", text: "Đã hoàn tiền" },
     };
     const config = statusConfig[status] || {
       class: "bg-secondary",

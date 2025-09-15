@@ -20,6 +20,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
   const [reviewRefresh, setReviewRefresh] = useState(0);
+  const [totalStock, setTotalStock] = useState(0); // Thêm state cho tổng stock
 
   useEffect(() => {
     fetchProduct();
@@ -28,9 +29,26 @@ const ProductDetail = () => {
   const fetchProduct = async () => {
     try {
       const response = await axios.get(`/api/products/${id}`);
-      console.log("Product data from API:", response.data); // Debug log
-      console.log("Product sizes:", response.data.sizes); // Debug log
-      setProduct(response.data);
+      console.log("Product data from API:", response.data);
+      console.log("Product sizes:", response.data.sizes);
+
+      const productData = response.data;
+
+      // Tính tổng stock từ sizes hoặc dùng stock_quantity gốc
+      let calculatedStock = 0;
+      if (productData.sizes && productData.sizes.length > 0) {
+        calculatedStock = productData.sizes.reduce(
+          (total, size) => total + (size.stock || 0),
+          0
+        );
+        console.log("Calculated stock from sizes:", calculatedStock);
+      } else {
+        calculatedStock = productData.stock_quantity || 0;
+        console.log("Using original stock_quantity:", calculatedStock);
+      }
+
+      setProduct(productData);
+      setTotalStock(calculatedStock);
     } catch (error) {
       console.error("Error fetching product:", error);
       if (error.response?.status === 404) {
@@ -47,7 +65,20 @@ const ProductDetail = () => {
       return;
     }
 
-    // Truyền đúng theo thứ tự: product, quantity, selectedSize
+    // Kiểm tra tồn kho theo size đã chọn
+    if (selectedSize && selectedSize.stock < quantity) {
+      showError(
+        `Size ${selectedSize.name} chỉ còn ${selectedSize.stock} sản phẩm!`
+      );
+      return;
+    }
+
+    // Kiểm tra tổng tồn kho nếu không có size
+    if (!selectedSize && totalStock < quantity) {
+      showError(`Chỉ còn ${totalStock} sản phẩm trong kho!`);
+      return;
+    }
+
     addToCart(product, quantity, selectedSize);
 
     showSuccess(
@@ -94,6 +125,13 @@ const ProductDetail = () => {
   const discountPercentage = product.sale_price
     ? Math.round(((originalPrice - product.sale_price) / originalPrice) * 100)
     : 0;
+
+  // Kiểm tra hết hàng dựa trên tổng stock
+  const isOutOfStock = totalStock <= 0;
+  // Số lượng tồn kho hiển thị
+  const displayStock = selectedSize ? selectedSize.stock : totalStock;
+  // Số lượng tối đa có thể chọn
+  const maxQuantity = selectedSize ? selectedSize.stock : totalStock;
 
   return (
     <>
@@ -144,7 +182,7 @@ const ProductDetail = () => {
                 className="img-fluid rounded shadow-lg w-100"
                 style={{ maxHeight: "500px", objectFit: "cover" }}
               />
-              {product.stock_quantity === 0 && (
+              {isOutOfStock && (
                 <div className="position-absolute top-0 start-0 m-3">
                   <span
                     className="badge bg-danger fs-6 p-2"
@@ -197,12 +235,13 @@ const ProductDetail = () => {
               )}
             </div>
             <div className="mb-3">
-              {product.stock_quantity > 0 ? (
-                <span className="text-success fw-bold">
-                  Còn hàng ({product.stock_quantity})
-                </span>
-              ) : (
+              {isOutOfStock ? (
                 <span className="text-danger fw-bold">Hết hàng</span>
+              ) : (
+                <span className="text-success fw-bold">
+                  Còn hàng ({displayStock})
+                  {selectedSize && ` - Size ${selectedSize.name}`}
+                </span>
               )}
             </div>
 
@@ -220,23 +259,35 @@ const ProductDetail = () => {
                           ? "btn-success"
                           : "btn-outline-success"
                       }`}
-                      onClick={() => setSelectedSize(size)}
+                      onClick={() => {
+                        setSelectedSize(size);
+                        // Reset quantity về 1 khi đổi size
+                        setQuantity(1);
+                      }}
                       disabled={size.stock <= 0}
                     >
-                      {size.name} {size.stock <= 0 && "(Hết hàng)"}
+                      {size.name} <small className="ms-1">({size.stock})</small>
+                      {size.stock <= 0 && (
+                        <small className="text-muted"> - Hết hàng</small>
+                      )}
                     </button>
                   ))}
                 </div>
-                {selectedSize && (
+                {/* {selectedSize && (
                   <small className="text-muted mt-2 d-block">
                     Size {selectedSize.name} - Còn {selectedSize.stock} sản phẩm
                   </small>
-                )}
+                )} */}
+                {/* {!selectedSize && product.sizes.length > 0 && (
+                  <small className="text-info mt-2 d-block">
+                    Tổng tồn kho: {totalStock} sản phẩm (tất cả sizes)
+                  </small>
+                )} */}
               </div>
             )}
 
             {/* Add to Cart */}
-            {product.stock_quantity > 0 && (
+            {!isOutOfStock && (
               <div className="mb-4">
                 <div className="row g-3 align-items-end">
                   <div className="col-auto">
@@ -245,6 +296,7 @@ const ProductDetail = () => {
                       <button
                         className="btn btn-outline-success"
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        disabled={quantity <= 1}
                       >
                         <i className="bi bi-dash"></i>
                       </button>
@@ -252,37 +304,33 @@ const ProductDetail = () => {
                         type="number"
                         className="form-control text-center"
                         value={quantity}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const newQuantity = parseInt(e.target.value) || 1;
                           setQuantity(
-                            Math.max(
-                              1,
-                              Math.min(
-                                product.stock_quantity,
-                                parseInt(e.target.value) || 1
-                              )
-                            )
-                          )
-                        }
+                            Math.max(1, Math.min(maxQuantity, newQuantity))
+                          );
+                        }}
                         min="1"
-                        max={product.stock_quantity}
+                        max={maxQuantity}
                       />
                       <button
                         className="btn btn-outline-success"
                         onClick={() =>
-                          setQuantity(
-                            Math.min(product.stock_quantity, quantity + 1)
-                          )
+                          setQuantity(Math.min(maxQuantity, quantity + 1))
                         }
+                        disabled={quantity >= maxQuantity}
                       >
                         <i className="bi bi-plus"></i>
                       </button>
                     </div>
+                    {/* <small className="text-muted">Tối đa: {maxQuantity}</small> */}
                   </div>
                   <div className="col">
                     <button
                       className="btn btn-outline-success fw-bold btn-lg px-3 fs-6"
                       style={{ height: "38px" }}
                       onClick={handleAddToCart}
+                      disabled={maxQuantity <= 0}
                     >
                       <i className="bi bi-cart-plus me-2"></i>
                       Thêm vào giỏ hàng
@@ -310,6 +358,26 @@ const ProductDetail = () => {
                       <td>{product.brand_name}</td>
                     </tr>
                   )}
+                  <tr>
+                    <th>Tồn kho</th>
+                    <td>
+                      {product.sizes && product.sizes.length > 0 ? (
+                        <div>
+                          <strong>Tổng: {totalStock}</strong>
+                          <div className="mt-1">
+                            {product.sizes.map((size, index) => (
+                              <span key={size.id} className="me-2">
+                                Size {size.name}: {size.stock}
+                                {index < product.sizes.length - 1 && ", "}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        totalStock
+                      )}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

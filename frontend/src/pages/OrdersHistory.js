@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
 import ScrollToTopButton from "../components/ScrollToTopButton";
-
 
 const OrdersHistory = () => {
   const { currentUser } = useAuth();
@@ -15,39 +14,66 @@ const OrdersHistory = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('/api/orders/user');
+      const response = await axios.get(`/api/orders/user/${currentUser.id}`);
+      console.log("Orders data from API:", response.data); // Debug
+
+      // Log từng order để xem items
+      response.data.forEach((order, index) => {
+        console.log(`Order ${index + 1}:`, {
+          id: order.id,
+          items: order.items,
+          created_at: order.created_at,
+        });
+      });
+
       setOrders(response.data);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
     } finally {
       setLoading(false);
     }
   };
 
-   // Thêm hàm cuộn lên đầu trang
+  // Thêm hàm cuộn lên đầu trang
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'pending': return 'bg-warning';
-      case 'confirmed': return 'bg-info';
-      case 'shipped': return 'bg-primary';
-      case 'delivered': return 'bg-success';
-      case 'cancelled': return 'bg-danger';
-      default: return 'bg-secondary';
+      case "pending":
+        return "bg-warning";
+      case "confirmed":
+        return "bg-info";
+      case "shipped":
+        return "bg-primary";
+      case "delivered":
+        return "bg-success";
+      case "cancelled":
+        return "bg-danger";
+      case "refunded":
+        return "bg-dark";
+      default:
+        return "bg-secondary";
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'pending': return 'Chờ xác nhận';
-      case 'confirmed': return 'Đã xác nhận';
-      case 'shipped': return 'Đang giao';
-      case 'delivered': return 'Đã giao';
-      case 'cancelled': return 'Đã hủy';
-      default: return status;
+      case "pending":
+        return "Chờ xác nhận";
+      case "confirmed":
+        return "Đã xác nhận";
+      case "shipped":
+        return "Đang giao hàng";
+      case "delivered":
+        return "Đã giao hàng";
+      case "cancelled":
+        return "Đã hủy";
+      case "refunded":
+        return "Đã hoàn tiền";
+      default:
+        return status;
     }
   };
 
@@ -57,9 +83,7 @@ const OrdersHistory = () => {
         <i className="bi bi-clock-history me-2 text-success"></i>
         Lịch sử đơn hàng
       </h4>
-      <span className="badge bg-success mb-3">
-        {orders.length} đơn hàng
-      </span>
+      <span className="badge bg-success mb-3">{orders.length} đơn hàng</span>
       {loading ? (
         <div className="text-center py-5">
           <div className="spinner-border" role="status">
@@ -72,7 +96,9 @@ const OrdersHistory = () => {
             <i className="bi bi-bag-x display-1 text-muted"></i>
           </div>
           <h5 className="text-muted">Bạn chưa có đơn hàng nào</h5>
-          <p className="text-muted">Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên!</p>
+          <p className="text-muted">
+            Hãy bắt đầu mua sắm để tạo đơn hàng đầu tiên!
+          </p>
           <a href="/products" className="btn btn-success">
             <i className="bi bi-shop me-2"></i>
             Mua sắm ngay
@@ -80,21 +106,26 @@ const OrdersHistory = () => {
         </div>
       ) : (
         <div className="row g-4">
-          {orders.map(order => (
+          {orders.map((order) => (
             <div key={order.id} className="col-12">
               <div className="card border-0 shadow-sm">
                 <div className="card-body">
                   <div className="row align-items-center">
                     <div className="col-md-2">
                       <div className="text-center">
-                        <div className="fw-bold text-success mb-1">#{order.id}</div>
+                        <div className="fw-bold text-success mb-1">
+                          #{order.id}
+                        </div>
                         <small className="text-muted">Mã đơn</small>
                       </div>
                     </div>
                     <div className="col-md-3">
                       <div>
-                        <div className="fw-medium text-truncate" style={{maxWidth: '200px'}}>
-                          {order.items}
+                        <div
+                          className="fw-medium"
+                          style={{ maxWidth: "300px" }}
+                        >
+                          {order.items || "Không có thông tin sản phẩm"}
                         </div>
                         <small className="text-muted">Sản phẩm</small>
                       </div>
@@ -102,9 +133,9 @@ const OrdersHistory = () => {
                     <div className="col-md-3">
                       <div>
                         <div className="fw-bold text-success">
-                          {new Intl.NumberFormat('vi-VN', { 
-                            style: 'currency', 
-                            currency: 'VND' 
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
                           }).format(order.total_amount)}
                         </div>
                         <small className="text-muted">Tổng tiền</small>
@@ -112,7 +143,11 @@ const OrdersHistory = () => {
                     </div>
                     <div className="col-md-2">
                       <div>
-                        <span className={`badge ${getStatusBadgeClass(order.status)}`}>
+                        <span
+                          className={`badge ${getStatusBadgeClass(
+                            order.status
+                          )}`}
+                        >
                           {getStatusText(order.status)}
                         </span>
                       </div>
@@ -120,7 +155,9 @@ const OrdersHistory = () => {
                     <div className="col-md-2">
                       <div>
                         <div className="fw-medium">
-                          {new Date(order.created_at).toLocaleDateString('vi-VN')}
+                          {new Date(order.created_at).toLocaleDateString(
+                            "vi-VN"
+                          )}
                         </div>
                         <small className="text-muted">Ngày đặt</small>
                       </div>
@@ -130,9 +167,8 @@ const OrdersHistory = () => {
               </div>
             </div>
           ))}
-{/* Nút trở lại đầu trang */}
-        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
-      
+          {/* Nút trở lại đầu trang */}
+          <ScrollToTopButton bottom={88} right={32} zIndex={999} />
         </div>
       )}
     </div>
