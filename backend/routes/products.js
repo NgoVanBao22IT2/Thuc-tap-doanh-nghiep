@@ -26,7 +26,9 @@ router.get("/:id", (req, res) => {
   if (isNaN(productId)) {
     return res.status(400).json({ message: "Invalid product ID" });
   }
-  const query = `
+
+  // Query để lấy thông tin sản phẩm
+  const productQuery = `
     SELECT p.*, c.name as category_name, b.name as brand_name, b.logo as brand_logo
     FROM products p 
     LEFT JOIN categories c ON p.category_id = c.id 
@@ -34,15 +36,43 @@ router.get("/:id", (req, res) => {
     WHERE p.id = ? AND p.status = 'active'
   `;
 
-  db.query(query, [productId], (err, results) => {
-    if (err) return res.status(500).json({ message: "Database error" });
-    if (results.length === 0)
-      return res.status(404).json({ message: "Product not found" });
+  db.query(productQuery, [productId], (err, productResults) => {
+    if (err) {
+      console.error("Lỗi query product:", err);
+      return res.status(500).json({ error: "Lỗi tải sản phẩm!" });
+    }
+    if (productResults.length === 0) {
+      return res.status(404).json({ error: "Sản phẩm không tồn tại!" });
+    }
 
-    // Increment view count
-    db.query("UPDATE products SET views = views + 1 WHERE id = ?", [productId]);
+    const product = productResults[0];
 
-    res.json(results[0]);
+    // Query để lấy sizes của sản phẩm
+    const sizesQuery = `
+      SELECT s.id, s.name, ps.stock_quantity as stock
+      FROM product_sizes ps
+      JOIN sizes s ON ps.size_id = s.id
+      WHERE ps.product_id = ? AND s.status = 1
+      ORDER BY s.sort_order, s.name
+    `;
+
+    db.query(sizesQuery, [productId], (err, sizesResults) => {
+      if (err) {
+        console.error("Lỗi query sizes:", err);
+        return res.status(500).json({ error: "Lỗi tải sizes sản phẩm!" });
+      }
+
+      // Gắn sizes vào product
+      product.sizes = sizesResults;
+
+      // Increment view count
+      db.query("UPDATE products SET views = views + 1 WHERE id = ?", [
+        productId,
+      ]);
+
+      console.log("Product with sizes:", product); // Debug log
+      res.json(product);
+    });
   });
 });
 
@@ -115,12 +145,10 @@ router.post("/", verifyToken, verifyAdmin, (req, res) => {
             return res
               .status(500)
               .json({ message: "Database error", error: err2.message });
-          res
-            .status(201)
-            .json({
-              message: "Product created successfully",
-              product: rows[0],
-            });
+          res.status(201).json({
+            message: "Product created successfully",
+            product: rows[0],
+          });
         }
       );
     }

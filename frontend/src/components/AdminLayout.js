@@ -18,6 +18,7 @@ const AdminLayout = ({ children }) => {
     { path: '/admin/products', icon: '📦', label: 'Quản lý sản phẩm' },
     { path: '/admin/categories', icon: '📂', label: 'Quản lý danh mục' },
     { path: '/admin/brands', icon: '🏷️', label: 'Quản lý thương hiệu' },
+    { path: '/admin/sizes', icon: '📐', label: 'Quản lý sizes' },
     { path: '/admin/orders', icon: '🛒', label: 'Quản lý đơn hàng' },
     { path: '/admin/users', icon: '👥', label: 'Quản lý người dùng' },
     { path: '/admin/reviews', icon: '⭐', label: 'Quản lý đánh giá' },

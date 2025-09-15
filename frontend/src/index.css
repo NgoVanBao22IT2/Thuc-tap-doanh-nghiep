@@ -913,3 +913,27 @@ code {
     min-width: 100%;
   }
 }
+
+.size-btn {
+  width: 50px;
+  height: 45px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.size-btn:hover {
+  border-color: rgb(25, 135, 84); /* xanh success */
+  color: rgb(25, 135, 84);
+}
+
+.size-btn.active {
+  border: 2px solid rgb(25, 135, 84);
+  background-color: rgb(25, 135, 84);
+  color: #fff;
+  font-weight: bold;
+}

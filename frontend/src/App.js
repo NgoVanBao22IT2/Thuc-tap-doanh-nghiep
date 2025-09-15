@@ -26,6 +26,8 @@ import AdminBrands from "./pages/admin/AdminBrands";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminContacts from "./pages/admin/AdminContacts";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminSizes from "./pages/admin/AdminSizes";
+import AdminProductSizes from "./pages/admin/AdminProductSizes";
 import AdminSlides from "./pages/admin/AdminSlides";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminNews from "./pages/admin/AdminNews";
@@ -176,6 +178,22 @@ function AppContent() {
             element={
               <ProtectedRoute adminOnly>
                 <AdminNews />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sizes"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminSizes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/product-sizes"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminProductSizes />
               </ProtectedRoute>
             }
           />

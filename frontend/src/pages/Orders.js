@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
 import ScrollToTopButton from "../components/ScrollToTopButton";
-
 
 const Orders = () => {
   const { currentUser } = useAuth();
@@ -15,9 +14,9 @@ const Orders = () => {
     }
   }, [currentUser]);
 
-   // Thêm hàm cuộn lên đầu trang
+  // Thêm hàm cuộn lên đầu trang
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const fetchOrders = async () => {
@@ -25,7 +24,7 @@ const Orders = () => {
       const response = await axios.get(`/api/orders/user/${currentUser.id}`);
       setOrders(response.data);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
     } finally {
       setLoading(false);
     }
@@ -33,13 +32,16 @@ const Orders = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'pending': { class: 'bg-warning text-dark', text: 'Chờ xác nhận' },
-      'confirmed': { class: 'bg-info', text: 'Đã xác nhận' },
-      'shipped': { class: 'bg-primary', text: 'Đang giao' },
-      'delivered': { class: 'bg-success', text: 'Đã giao' },
-      'cancelled': { class: 'bg-danger', text: 'Đã hủy' }
+      pending: { class: "bg-warning text-dark", text: "Chờ xác nhận" },
+      confirmed: { class: "bg-info", text: "Đã xác nhận" },
+      shipped: { class: "bg-primary", text: "Đang giao" },
+      delivered: { class: "bg-success", text: "Đã giao" },
+      cancelled: { class: "bg-danger", text: "Đã hủy" },
     };
-    const config = statusConfig[status] || { class: 'bg-secondary', text: status };
+    const config = statusConfig[status] || {
+      class: "bg-secondary",
+      text: status,
+    };
     return <span className={`badge ${config.class}`}>{config.text}</span>;
   };
 
@@ -58,7 +60,7 @@ const Orders = () => {
   return (
     <div className="container my-5">
       <h2 className="fw-bold mb-4">Lịch sử đơn hàng</h2>
-      
+
       {orders.length === 0 ? (
         <div className="text-center py-5">
           <div className="mb-4">
@@ -66,23 +68,23 @@ const Orders = () => {
           </div>
           <h4 className="text-muted">Chưa có đơn hàng nào</h4>
           <p className="text-muted">Hãy đặt hàng để xem lịch sử tại đây</p>
-          <a href="/products" className="btn btn-success">Tiếp tục mua sắm</a>
+          <a href="/products" className="btn btn-success">
+            Tiếp tục mua sắm
+          </a>
         </div>
       ) : (
         <div className="row">
-          {orders.map(order => (
+          {orders.map((order) => (
             <div key={order.id} className="col-12 mb-4">
               <div className="card">
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <div>
                     <h6 className="mb-0">Đơn hàng #{order.id}</h6>
                     <small className="text-muted">
-                      {new Date(order.created_at).toLocaleDateString('vi-VN')}
+                      {new Date(order.created_at).toLocaleDateString("vi-VN")}
                     </small>
                   </div>
-                  <div>
-                    {getStatusBadge(order.status)}
-                  </div>
+                  <div>{getStatusBadge(order.status)}</div>
                 </div>
                 <div className="card-body">
                   <div className="row">
@@ -97,9 +99,9 @@ const Orders = () => {
                     <div className="col-md-4 text-end">
                       <h6>Tổng tiền:</h6>
                       <h4 className="text-danger mb-2">
-                        {new Intl.NumberFormat('vi-VN', { 
-                          style: 'currency', 
-                          currency: 'VND' 
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
                         }).format(order.total_amount)}
                       </h4>
                       {order.coupon_code && (
@@ -111,7 +113,10 @@ const Orders = () => {
                       )}
                       <div className="mt-2">
                         <small className="text-muted">
-                          Thanh toán: {order.payment_method === 'cod' ? 'COD' : 'Chuyển khoản'}
+                          Thanh toán:{" "}
+                          {order.payment_method === "cod"
+                            ? "COD"
+                            : "Chuyển khoản"}
                         </small>
                       </div>
                     </div>
@@ -120,10 +125,8 @@ const Orders = () => {
               </div>
             </div>
           ))}
-         {/* Nút trở lại đầu trang */}
-        <ScrollToTopButton bottom={88} right={32} zIndex={999} />
-      
-      
+          {/* Nút trở lại đầu trang */}
+          <ScrollToTopButton bottom={88} right={32} zIndex={999} />
         </div>
       )}
     </div>

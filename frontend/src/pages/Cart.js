@@ -55,11 +55,15 @@ const Cart = () => {
     }
   }, [currentUser]);
 
-  const handleQuantityChange = (productId, newQuantity) => {
+  const handleQuantityChange = (
+    productId,
+    newQuantity,
+    selectedSize = null
+  ) => {
     if (newQuantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, selectedSize);
     } else {
-      updateQuantity(productId, newQuantity);
+      updateQuantity(productId, newQuantity, selectedSize);
     }
   };
 
@@ -114,6 +118,8 @@ const Cart = () => {
           product_id: item.id,
           quantity: item.quantity,
           price: item.price,
+          size_id: item.selectedSize?.id || null,
+          size_name: item.selectedSize?.name || null,
         })),
         total_amount: getCartTotal(),
         shipping_address: shippingAddress,
@@ -193,7 +199,7 @@ const Cart = () => {
         <div className="row">
           <div className="col-md-8">
             {cartItems.map((item) => (
-              <div key={item.id} className="card mb-3">
+              <div key={item.cartKey || item.id} className="card mb-3">
                 <div className="row g-0">
                   <div className="col-md-3">
                     <img
@@ -212,6 +218,12 @@ const Cart = () => {
                           <h5 className="card-title">{item.name}</h5>
                           <p className="card-text text-muted">
                             {item.category_name}
+                            {item.selectedSize && (
+                              <span className="ms-2">
+                                <i className="bi bi-tag me-1"></i>
+                                Size: <strong>{item.selectedSize.name}</strong>
+                              </span>
+                            )}
                           </p>
                           <p className="card-text fw-bold text-danger">
                             {new Intl.NumberFormat("vi-VN", {
@@ -225,7 +237,11 @@ const Cart = () => {
                             <button
                               className="btn btn-outline-secondary"
                               onClick={() =>
-                                handleQuantityChange(item.id, item.quantity - 1)
+                                handleQuantityChange(
+                                  item.id,
+                                  item.quantity - 1,
+                                  item.selectedSize
+                                )
                               }
                             >
                               -
@@ -237,7 +253,8 @@ const Cart = () => {
                               onChange={(e) =>
                                 handleQuantityChange(
                                   item.id,
-                                  parseInt(e.target.value) || 0
+                                  parseInt(e.target.value) || 0,
+                                  item.selectedSize
                                 )
                               }
                               min="0"
@@ -245,7 +262,11 @@ const Cart = () => {
                             <button
                               className="btn btn-outline-secondary"
                               onClick={() =>
-                                handleQuantityChange(item.id, item.quantity + 1)
+                                handleQuantityChange(
+                                  item.id,
+                                  item.quantity + 1,
+                                  item.selectedSize
+                                )
                               }
                             >
                               +
@@ -255,7 +276,9 @@ const Cart = () => {
                         <div className="col-md-3">
                           <button
                             className="btn btn-danger"
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() =>
+                              removeFromCart(item.id, item.selectedSize)
+                            }
                           >
                             Xóa
                           </button>
